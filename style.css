@@ -1,0 +1,60 @@
+.loading-overlay {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  padding-top: 20%;
+}
+
+.loading-overlay img {
+  width: 100px;
+}
+
+.main_form{
+  display: flex;
+}
+
+#sidebar{
+  width:30%;
+}
+
+#sidebar  h2{
+  text-align: center !important;
+  font-size: 24px;
+}
+.input_clean,.input_dark{
+  position: absolute;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.lumini_items{
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dark_light_radio{
+  display: flex;
+  padding-left: 5%;
+  gap: 5%;
+}
+
+.radio-btn{
+  width: 20px;
+  height: 20px;
+  border:1px solid #a5a6ab;
+  border-radius: 50%;
+
+}
+
+input[type="checkbox"]:checked + label .radio-btn{
+  background: radial-gradient(circle,#CE73F4 45%,transparent 50%);
+
+}
