@@ -103,6 +103,7 @@ function chatgpt_plugin_enqueue_scripts($hook) {
     wp_localize_script('chatgpt-plugin-ajax', 'chatgpt_plugin_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php')
     ));
+    wp_enqueue_script('gpt_ligt_n_dark',plugin_dir_url(__FILE__).'scripts/elements.js',array(),'1.0.0',true);
 }
 add_action('admin_enqueue_scripts', 'chatgpt_plugin_enqueue_scripts');
 
@@ -350,13 +351,6 @@ function chatgpt_plugin_options_page() {
         // Atualizar a opção com o modelo selecionado
         update_option('chatgpt_selected_model', $_POST['chatgpt_model']);
         
-        
-        
- 
-        
-        
-        
-     
     }
     
     
@@ -389,9 +383,11 @@ function chatgpt_plugin_options_page() {
     
     <div class="wrap">
         <h2>Configurações do Autopost</h2>
-        <div class="main_form">
-        <?php require_once(plugin_dir_path(__FILE__).'templates/sidebar_plugin.php');?>
-        <form action="" method="post">
+        <div class="form_parent">
+       
+        <form action="" method="post" class="main_form">
+           <?php require_once(plugin_dir_path(__FILE__).'templates/sidebar_plugin.php');?>
+            <div class="form_item">
             <?php settings_fields('chatgpt_plugin_options'); ?>
             <?php do_settings_sections('chatgpt_plugin'); ?>
 
@@ -437,50 +433,17 @@ function chatgpt_plugin_options_page() {
             <textarea name="chatgpt_keywords" rows="10" cols="100" placeholder="Palavra-chave 1&#10;Palavra-chave 2&#10;Palavra-chave 3"></textarea>
             
             <br><br>
-           <p><strong>Selecionar categoria:</strong></p>
-<select name="chatgpt_category" id="chatgpt_category" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-    <?php foreach ($categories as $category) : ?>
-        <option value="<?php echo esc_attr($category->term_id); ?>">
-            <?php echo esc_html($category->name); ?>
-        </option>
-    <?php endforeach; ?>
-</select>
+
 
 <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
     <span>(Versão Premium)</span>
 <?php endif; ?>
 
-            
-            
-            
-            <br><br>
-           <p><strong>Selecionar autor:</strong></p>
-<select name="chatgpt_author" id="chatgpt_author" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-    <?php foreach ($authors as $author) : ?>
-        <option value="<?php echo esc_attr($author->ID); ?>">
-            <?php echo esc_html($author->display_name); ?>
-        </option>
-    <?php endforeach; ?>
-</select>
+    <br><br>
 
 <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
     <span>(Versão Premium)</span>
 <?php endif; ?>
-
-    
-    
-            <p><strong>Status da postagem:</strong></p>
-            <input type="radio" id="post_status_auto" name="post_status" value="auto" checked>
-            <label for="post_status_auto">Gerar e Postar Automaticamente</label><br>
-            
-            
-            <input type="radio" id="post_status_draft" name="post_status" value="draft" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-<label for="post_status_draft">Colocar Post em Rascunho</label>
-<?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?><span>(Versão Premium)</span>
-<?php endif; ?>
-<br>
-<input type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
-<label for="post_status_schedule">Agendar Postagem</label>
 
 <span id="schedule_datetime_container" style="display: none !important;">
     <input type="datetime-local" name="schedule_datetime" id="schedule_datetime" value="" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
@@ -501,7 +464,7 @@ function chatgpt_plugin_options_page() {
             <br>  <br>  <br>
            <input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Gerar Textos'); ?>" />
 
-            
+        </div>
         </form>
         </div>
     </div>

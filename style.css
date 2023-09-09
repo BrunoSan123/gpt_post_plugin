@@ -54,6 +54,19 @@
 
 }
 
+.dark{
+  background: #353541 !important;
+  color: #fff !important;
+}
+
+.dark h2{
+  color: #fff;
+}
+
+.sidebar-dark{
+  background:#202123;
+}
+
 input[type="checkbox"]:checked + label .radio-btn{
   background: radial-gradient(circle,#CE73F4 45%,transparent 50%);
 

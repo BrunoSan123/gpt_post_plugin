@@ -12,4 +12,41 @@
             <span>DARK</span>
         </label>
     </div>
+
+    <div class="authors">
+    <p><strong>AUTOR:</strong></p>
+        <select name="chatgpt_author" id="chatgpt_author" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
+            <?php foreach ($authors as $author) : ?>
+                <option value="<?php echo esc_attr($author->ID); ?>">
+                    <?php echo esc_html($author->display_name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="category">
+    <p><strong>Selecionar categoria:</strong></p>
+        <select name="chatgpt_category" id="chatgpt_category" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
+            <?php foreach ($categories as $category) : ?>
+                <option value="<?php echo esc_attr($category->term_id); ?>">
+                    <?php echo esc_html($category->name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="post_schedule">
+    <p><strong>STATUS:</strong></p>
+            <input type="radio" id="post_status_auto" name="post_status" value="auto" checked>
+            <label for="post_status_auto">Gerar e Postar Automaticamente</label><br>
+            
+            
+            <input type="radio" id="post_status_draft" name="post_status" value="draft" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
+            <label for="post_status_draft">Colocar Post em Rascunho</label>
+            <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?><span>(Versão Premium)</span>
+            <?php endif; ?>
+            <br>
+            <input type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
+            <label for="post_status_schedule">Agendar Postagem</label>
+    </div>
 </aside>
