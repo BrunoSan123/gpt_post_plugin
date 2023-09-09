@@ -71,3 +71,13 @@ input[type="checkbox"]:checked + label .radio-btn{
   background: radial-gradient(circle,#CE73F4 45%,transparent 50%);
 
 }
+
+#chatgpt_model{
+  display:flex;
+  justify-content:center;
+  gap:3%;
+}
+
+.gpt_input{
+  display:none !important;
+}

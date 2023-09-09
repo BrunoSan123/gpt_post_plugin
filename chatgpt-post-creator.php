@@ -382,6 +382,7 @@ function chatgpt_plugin_options_page() {
     </script>
     
     <div class="wrap">
+        <?php require_once(plugin_dir_path(__FILE__).'templates/gpt_mode_swicth.php')?>
         <h2>Configurações do Autopost</h2>
         <div class="form_parent">
        
@@ -402,14 +403,6 @@ function chatgpt_plugin_options_page() {
             <input type="button" class="button" value="Editar Chave API" onclick="enableApiKeyEditing()" />
 
 
-<p><strong>Selecione o Modelo do ChatGPT:</strong></p>
-    <select id="chatgpt_model" name="chatgpt_model">
-        <?php foreach ($models as $model_key => $model_name) : ?>
-            <option value="<?php echo esc_attr($model_key); ?>" <?php selected($selected_model, $model_key); ?>>
-                <?php echo esc_html($model_name); ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
 
 <code style="font-size:12px;font-style: italic;">o GPT-3 da OpenAI tem limitações quanto ao número de tokens por resposta, o que pode limitar a extensão dos textos gerados. A versão da Vinci do GPT-3 pode lidar com até 2048 tokens por request, o que em muitos casos pode ser menos do que 2000 palavras, dependendo do idioma e da complexidade do texto.</code>
 
