@@ -64,7 +64,8 @@
 }
 
 .sidebar-dark{
-  background:#202123;
+  background:#202123 !important;
+  border-color:#202123 !important;
 }
 
 input[type="checkbox"]:checked + label .radio-btn{
@@ -76,8 +77,48 @@ input[type="checkbox"]:checked + label .radio-btn{
   display:flex;
   justify-content:center;
   gap:3%;
+  border:1px solid #ddd;
+  background:#ddd;
+  width:20%;
+  align-items:center;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 12px
 }
 
 .gpt_input{
   display:none !important;
+}
+
+.gpt_label_model{
+  width:50%;
+  text-align:center;
+  margin-top:2%;
+  margin-bottom:2%;
+  display:flex;
+}
+
+.gpt_label_model p{
+  padding-left:15%;
+}
+
+.gpt_label_model svg{
+  padding-top: 13%;
+  padding-left: 13%
+}
+
+
+.gpt_input:checked+label{
+  background:#3f414e;
+  color:#fff;
+  border-radius:12px;
+}
+.gpt_switch_icon_ray{}
+
+.gpt_switch_icon_ray path{
+  fill:#19c37d !important;
+}
+
+.gpt_switch_icon_stars path{
+  fill:#ab68ff;
 }
