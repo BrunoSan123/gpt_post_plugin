@@ -4,6 +4,8 @@ const sidebar= document.getElementById("sidebar")
 const gpt_switch= document.querySelectorAll(".gpt_label_model")
 const switch_container=document.getElementById("chatgpt_model")
 const gpt_icons =document.querySelectorAll(".gpt_dash_icos")
+const authors_select =document.querySelector(".autor_select")
+const authors_item=document.querySelector(".authors_item")
 
 palletSelect.forEach((e,i)=>{
     e.addEventListener('change',()=>{
@@ -33,4 +35,8 @@ gpt_switch.forEach((e,i)=>{
         gpt_icons[0].childNodes[0].style="fill:blue !important"
        }
     })
+})
+
+authors_select.addEventListener('click',()=>{
+   authors_item.classList.toggle("show")
 })

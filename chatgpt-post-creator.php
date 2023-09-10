@@ -349,7 +349,8 @@ function chatgpt_plugin_options_page() {
     // Verificar se os dados do formulário foram enviados
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Atualizar a opção com o modelo selecionado
-        update_option('chatgpt_selected_model', $_POST['chatgpt_model']);
+        $selected_model=isset($_POST['chatgpt_model'])?sanitize_text_field($_POST['chatgpt_model']):'';
+        update_option('chatgpt_selected_model', $selected_model);
         
     }
     

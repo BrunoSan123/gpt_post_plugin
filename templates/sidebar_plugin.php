@@ -14,14 +14,18 @@
     </div>
 
     <div class="authors">
-    <p><strong>AUTOR:</strong></p>
-        <select name="chatgpt_author" id="chatgpt_author" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-            <?php foreach ($authors as $author) : ?>
-                <option value="<?php echo esc_attr($author->ID); ?>">
-                    <?php echo esc_html($author->display_name); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+    <p><strong class="autor_select">AUTOR:</strong></p>
+         
+    <ul class="authors_item">
+         <?php foreach ($authors as $author) : ?>
+            
+                <li>
+                <label for="chatgpt_author"><?php echo esc_html($author->display_name)?></label>
+                <input type="radio" name="chatgpt_author" value="<?php echo esc_attr($author->ID)?>" class="author_input">
+                </li>
+         
+        <?php endforeach; ?>
+    </ul>
     </div>
 
     <div class="category">
