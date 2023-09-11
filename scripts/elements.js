@@ -1,4 +1,5 @@
 const palletSelect=document.querySelectorAll('.input_gpt')
+const authorsDrop =document.querySelectorAll(".author_input")
 const pageBackground = document.getElementById("wpbody-content");
 const sidebar= document.getElementById("sidebar")
 const gpt_switch= document.querySelectorAll(".gpt_label_model")
@@ -40,3 +41,14 @@ gpt_switch.forEach((e,i)=>{
 authors_select.addEventListener('click',()=>{
    authors_item.classList.toggle("show")
 })
+
+authorsDrop.forEach((e,i)=>{
+    e.addEventListener('change',()=>{
+        authorsDrop.forEach((j,i)=>{
+            if(j!==e){
+                j.checked=false;
+            }
+        })
+    })
+})
+    

@@ -16,16 +16,15 @@
     <div class="authors">
     <p><strong class="autor_select">AUTOR:</strong></p>
          
-    <ul class="authors_item">
+    <div class="authors_item">
+        <?php $count_author=0?>
          <?php foreach ($authors as $author) : ?>
-            
-                <li>
-                <label for="chatgpt_author"><?php echo esc_html($author->display_name)?></label>
-                <input type="radio" name="chatgpt_author" value="<?php echo esc_attr($author->ID)?>" class="author_input">
-                </li>
-         
-        <?php endforeach; ?>
-    </ul>
+                <input type="checkbox" name="chatgpt_author" value="<?php echo esc_attr($author->ID)?>" class="author_input" id="chatgpt_author-<?php echo $count_author?>">
+                <label for="chatgpt_author-<?php echo $count_author?>" class="authors_input_label"><?php echo esc_html($author->display_name)?></label>
+         <?php 
+            $count_author++;
+        endforeach; ?>
+         </div>
     </div>
 
     <div class="category">

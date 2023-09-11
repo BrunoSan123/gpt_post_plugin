@@ -27,7 +27,7 @@
   text-align: center !important;
   font-size: 24px;
 }
-.input_clean,.input_dark{
+.input_clean,.input_dark,.author_input{
   position: absolute;
   width: 0;
   height: 0;
@@ -86,7 +86,7 @@ input[type="checkbox"]:checked + label .radio-btn{
   border-radius: 12px
 }
 
-.gpt_input,.author_input{
+.gpt_input{
   display:none !important;
 }
 
@@ -148,12 +148,15 @@ input[type="checkbox"]:checked + label .radio-btn{
   transition: .9s !important;
 }
 
-.authors_item li.selected {
-  background-color: #ccc;
+.authors_input_label{
+ display:inline-block;
+ width:100%;  
 }
-
-
 .show{
   display: block;
   
+}
+
+.author_input:checked+label{
+  background:#ccc !important;
 }
