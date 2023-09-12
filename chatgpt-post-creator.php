@@ -1,3 +1,8 @@
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300&display=swap" rel="stylesheet">
+</head>
 <?php
 /*
 Plugin Name: ChatGPT Autopost
@@ -399,55 +404,49 @@ function chatgpt_plugin_options_page() {
             <?php settings_fields('chatgpt_plugin_options'); ?>
             <?php do_settings_sections('chatgpt_plugin'); ?>
 
-            <p><strong>Chave API:</strong></p>
-            
+            <p class="api_config" style="text-align: center;"><strong>Configurações de chave API</strong></p>
+
+            <div class="chat_gpt_vonfiguration">
             <p>Caso não tenha uma chave API, gere uma no link: <a href="https://platform.openai.com/account/api-keys" target="_blank">https://platform.openai.com/account/api-keys</a></p>
             <input type="text" id="chatgpt_api_key" name="chatgpt_api_key" value="<?php echo esc_attr($api_key); ?>" readonly />
-            
             <input type="submit" class="button" name="save_api_key" value="Salvar ChaveAPI" />
-
-            
             <input type="button" class="button" value="Editar Chave API" onclick="enableApiKeyEditing()" />
+            <code style="font-size:12px;font-style: italic;">o GPT-3 da OpenAI tem limitações quanto ao número de tokens por resposta, o que pode limitar a extensão dos textos gerados. A versão da Vinci do GPT-3 pode lidar com até 2048 tokens por request, o que em muitos casos pode ser menos do que 2000 palavras, dependendo do idioma e da complexidade do texto.</code>
+            </div>
 
+    <div class="gpt_input_generation">
+        <div class="generation_parent">
+         <div class="generation_child">
+            <p class="inputs_title"><strong>PROMPT</strong></p>
+            <textarea class="chat_textarea" id="chatgpt_prompt" name="chatgpt_prompt" rows="5" cols="100" placeholder="Escreva um artigo sobre {palavra-chave}"><?php echo esc_textarea($saved_prompt); ?></textarea>
+            <div class="generate_text_button">
+            <input style="margin-top: 3%; text-decoration:none; color:#fff;" type="button" class="button btn_submit_text" id="save_prompt" value="Salvar Prompt" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?> />
+            </div>
+        </div>
 
-
-<code style="font-size:12px;font-style: italic;">o GPT-3 da OpenAI tem limitações quanto ao número de tokens por resposta, o que pode limitar a extensão dos textos gerados. A versão da Vinci do GPT-3 pode lidar com até 2048 tokens por request, o que em muitos casos pode ser menos do que 2000 palavras, dependendo do idioma e da complexidade do texto.</code>
-
-
-
-            <p><strong>Prompt (Ex. Escreva um texto de no minimo 2000 palavras sobre {palavra-chave}):</strong></p>
-            
-            
-            
-            
-    <textarea id="chatgpt_prompt" name="chatgpt_prompt" rows="5" cols="100" placeholder="Escreva um artigo sobre {palavra-chave}"><?php echo esc_textarea($saved_prompt); ?></textarea>
-    <input type="button" class="button" id="save_prompt" value="Salvar Prompt" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?> />
-
-<?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-    <span>(Versão Premium)</span>
-<?php endif; ?>
+        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
+            <span>(Versão Premium)</span>
+        <?php endif; ?>
 
            
-            
-            <p><strong>Palavras-chave (uma em cada linha):</strong></p>
-            <textarea name="chatgpt_keywords" rows="10" cols="100" placeholder="Palavra-chave 1&#10;Palavra-chave 2&#10;Palavra-chave 3"></textarea>
+            <div class="generation_child">
+                <p class="inputs_title"><strong>PALAVAS CHAVE</strong></p>
+                <textarea class="chatgpt_keys chat_textarea" name="chatgpt_keywords" rows="10" cols="100" placeholder="Palavra-chave 1&#10;Palavra-chave 2&#10;Palavra-chave 3"></textarea>
+            </div>
             
             <br><br>
+         
 
 
-<?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-    <span>(Versão Premium)</span>
-<?php endif; ?>
+        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
+            <span>(Versão Premium)</span>
+        <?php endif; ?>
 
-    <br><br>
+            <br><br>
 
-<?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-    <span>(Versão Premium)</span>
-<?php endif; ?>
-
-<span id="schedule_datetime_container" style="display: none !important;">
-    <input type="datetime-local" name="schedule_datetime" id="schedule_datetime" value="" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-</span>
+        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
+            <span>(Versão Premium)</span>
+        <?php endif; ?>
 
 
 <input type="hidden" name="chatgpt_form_submitted" value="1">
@@ -457,13 +456,11 @@ function chatgpt_plugin_options_page() {
 <?php endif; ?>
 
 
-            
-            
-            
-            
-            <br>  <br>  <br>
-           <input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Gerar Textos'); ?>" />
-
+            <div class="generate_text_button">
+                <input name="submit" class="button btn_submit_text button-primary" type="submit" value="<?php esc_attr_e('Gerar Textos'); ?>" />
+           </div>
+        </div>
+    </div>
         </div>
         </form>
         </div>

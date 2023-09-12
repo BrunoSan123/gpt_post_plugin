@@ -12,9 +12,9 @@
             <span>DARK</span>
         </label>
     </div>
-
-    <div class="authors">
-    <p><strong class="autor_select">AUTOR:</strong></p>
+    <div class="sidebar_item">
+    <div class="authors selection_item">
+    <p class="autor_select" style="padding-left: 5%;"><strong>AUTOR:</strong></p>
          
     <div class="authors_item">
         <?php $count_author=0?>
@@ -27,29 +27,48 @@
          </div>
     </div>
 
-    <div class="category">
-    <p><strong>Selecionar categoria:</strong></p>
-        <select name="chatgpt_category" id="chatgpt_category" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-            <?php foreach ($categories as $category) : ?>
-                <option value="<?php echo esc_attr($category->term_id); ?>">
-                    <?php echo esc_html($category->name); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+    <div class="category selection_item">
+    <p class="category_select" style="padding-left: 5%;"><strong>CATEGORIA:</strong></p>
+     <div class="category_item">
+        <?php $count_category=0?>
+         <?php foreach ($categories as $category) : ?>
+                <input type="checkbox" name="chatgpt_category" value="<?php echo esc_attr($category->term_id)?>" class="category_input" id="chatgpt_category-<?php echo $count_category?>">
+                <label for="chatgpt_category-<?php echo $count_category?>" class="authors_input_label"><?php echo esc_html($category->name)?></label>
+         <?php 
+            $count_category++;
+        endforeach; ?>
+        </div>
     </div>
+</div>
 
     <div class="post_schedule">
-    <p><strong>STATUS:</strong></p>
-            <input type="radio" id="post_status_auto" name="post_status" value="auto" checked>
-            <label for="post_status_auto">Gerar e Postar Automaticamente</label><br>
+    <p style="padding-left: 5%;"><strong>STATUS:</strong></p>
+            <div class="lumini_items">
+                <input class="schedule_input" type="radio" id="post_status_auto" name="post_status" value="auto" checked>
+                <label class="input_schedul dark_light_radio" for="post_status_auto">
+                    <div class="radio_schedule"></div>
+                    PUBLICAR
+                </label><br>
+            </div>
             
-            
-            <input type="radio" id="post_status_draft" name="post_status" value="draft" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
-            <label for="post_status_draft">Colocar Post em Rascunho</label>
+            <div class="lumini_items">
+                <input class="schedule_input"  type="radio" id="post_status_draft" name="post_status" value="draft" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
+                <label class="input_schedule dark_light_radio" for="post_status_draft">
+                    <div class="radio_schedule"></div>
+                    RASCUNHO
+                </label>
+            </div>
             <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?><span>(Versão Premium)</span>
             <?php endif; ?>
-            <br>
-            <input type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
-            <label for="post_status_schedule">Agendar Postagem</label>
+            <div class="lumini_items">
+                <input class="schedule_input"  type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
+                <label class="input_schedule dark_light_radio" for="post_status_schedule">
+                    <div class="radio_schedule schedulee"></div>
+                    AGENDAR
+                </label>
+            </div>
+            <span id="schedule_datetime_container">
+                    <input type="datetime-local" name="schedule_datetime" id="schedule_datetime" value="" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
+            </span>
     </div>
 </aside>
