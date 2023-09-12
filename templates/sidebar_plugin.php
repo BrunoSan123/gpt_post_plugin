@@ -61,14 +61,40 @@
             <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?><span>(Versão Premium)</span>
             <?php endif; ?>
             <div class="lumini_items">
-                <input class="schedule_input"  type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
+                <input class="schedule_input schedulee"  type="radio" id="post_status_schedule" name="post_status" value="schedule" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>> 
                 <label class="input_schedule dark_light_radio" for="post_status_schedule">
-                    <div class="radio_schedule schedulee"></div>
+                    <div class="radio_schedule"></div>
                     AGENDAR
                 </label>
             </div>
             <span id="schedule_datetime_container">
                     <input type="datetime-local" name="schedule_datetime" id="schedule_datetime" value="" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?>>
             </span>
+    </div>
+
+    <div class="image_daali">
+    <p style="padding-left: 5%;"><strong>IMAGEM:</strong></p>
+
+    <div class="lumini_items">
+                <input class="ia_image_input" type="radio" id="ia_dalle" name="ia_dalle" value="auto">
+                <label class="input_ia_image dark_light_radio" for="ia_dalle">
+                    <div class="radio-btn-image"></div>
+                    DALL-E
+                </label><br>
+    </div>
+    <div class="lumini_items">
+                <input class="ia_image_input" type="radio" id="ia_midjournal" name="ia_midjournal" value="auto">
+                <label class="input_ia_image dark_light_radio" for="ia_midjournal">
+                    <div class="radio-btn-image"></div>
+                    MIDJOURNAL
+                </label><br>
+    </div>
+    <div class="lumini_items">
+                <input class="ia_image_input" type="radio" id="ia_send" name="ia_send" value="auto">
+                <label class="input_ia_image dark_light_radio" for="ia_send">
+                    <div class="radio-btn-image"></div>
+                    ENVIAR IMAGEM
+                </label><br>
+    </div>
     </div>
 </aside>

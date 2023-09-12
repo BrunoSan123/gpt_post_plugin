@@ -14,6 +14,8 @@ const gpt_textareas= document.querySelectorAll(".chat_textarea")
 const selection_items=document.querySelectorAll(".selection_item")
 const api_config =document.querySelector(".api_config")
 const gpt_config =document.querySelector(".chat_gpt_vonfiguration")
+const schedule_container= document.getElementById("schedule_datetime_container")
+const shcedule_input = document.querySelectorAll(".schedule_input")
 
 api_config.addEventListener('click',()=>{
   gpt_config.classList.toggle("show")
@@ -80,9 +82,19 @@ authorsDrop.forEach((e,i)=>{
 })
 
 
-schedule_radio_button.addEventListener('change',()=>{
+shcedule_input.forEach((e)=>{
+    e.addEventListener('click',()=>{
+
         if(schedule_radio_button.checked){
-            alert('go')
+            schedule_container.classList.add("show")
+        }else{
+            schedule_container.classList.remove("show")
         }
+    })
 })
+
+
+
+
+
     
