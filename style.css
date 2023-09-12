@@ -15,6 +15,17 @@
   width: 100px;
 }
 
+.settings_page_chatgpt_plugin #wpcontent{
+  padding-left:0 !important;
+}
+
+.autopost_title{
+  text-align: center;
+  font-size: 46px;
+  color: #bbb;
+  opacity: .5;
+}
+
 .chat_gpt_vonfiguration{
   width: 70%;
   margin-left: auto;
@@ -29,6 +40,7 @@
 #sidebar{
   width:30%;
   margin-right:2%;
+  background:#e8e7ee;
 }
 
 #sidebar  h2{

@@ -395,7 +395,7 @@ function chatgpt_plugin_options_page() {
     
     <div class="wrap">
         <?php require_once(plugin_dir_path(__FILE__).'templates/gpt_mode_swicth.php')?>
-        <h2>Configurações do Autopost</h2>
+        <h2 class="autopost_title">Autopost Plus</h2>
         <div class="form_parent">
        
         <form action="" method="post" class="main_form">
