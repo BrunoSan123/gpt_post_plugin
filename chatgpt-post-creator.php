@@ -350,7 +350,9 @@ function generate_image_with_dall_e($api_key,$prompt){
     $dall_e_api_url ='https://api.openai.com/v1/images/generations';
 
     $request_data=array(
-        'text'=>$prompt
+        'text'=>$prompt,
+        'n'=>1,
+        'size'=>'1024x1024'
     );
     $headers=array(
         'Content-type:application/json',
@@ -374,8 +376,8 @@ function generate_image_with_dall_e($api_key,$prompt){
     curl_close($curl);
     $response_data = json_decode($response, true);
 
-    if (isset($response_data['image_url'])) {
-        return $response_data['image_url'];
+    if (isset($response_data['data'])) {
+        return $response_data['data'][0]['url'];
     } else {
         // Lidar com a falta da URL da imagem ou outros erros da API
         return null;
@@ -573,15 +575,13 @@ function chatgpt_generate_and_publish_posts() {
                 $keyword = trim($keyword);
                 $complete_prompt = str_replace('{palavra-chave}', $keyword, $prompt);
                 $generated_text = chatgpt_generate_text($api_key, $complete_prompt);
-                $generated_image =generate_image_with_dall_e($api_key,$keyword);
+                
                 
 
                 if ($generated_text === null || $generated_text === '') {
                     throw new Exception('Error: Generated text is empty or null.');
                 }
-                if($generated_image===null || $generated_image===''){
-                    throw new Exception('Error: Generated Image is empty or null');
-                }
+  
 
                 $post_data = array(
                     'post_title'    => $keyword,
@@ -606,7 +606,14 @@ function chatgpt_generate_and_publish_posts() {
                 }
 
                 $post_id = wp_insert_post($post_data);
-                set_post_thumbnail($post_id, $generated_image);
+                if(isset($_POST['ia_dalle'])){
+                    $generated_image =generate_image_with_dall_e($api_key,$keyword);
+                    if($generated_image===null || $generated_image===''){
+                        throw new Exception('Error: Generated Image is empty or null');
+                    }
+                    set_post_thumbnail($post_id, $generated_image);
+                }
+                
             } catch (Exception $e) {
                 // Log the error message for debugging
                 error_log($e->getMessage());
