@@ -346,6 +346,42 @@ function chatgpt_generate_text($api_key, $prompt) {
     }
 }
 
+function generate_image_with_dall_e($api_key,$prompt){
+    $dall_e_api_url ='https://api.openai.com/v1/images/generations';
+
+    $request_data=array(
+        'text'=>$prompt
+    );
+    $headers=array(
+        'Content-type:application/json',
+        'Authorization:Bearer'.$api_key,
+    );
+    $curl=curl_init();
+    curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($request_data));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $response = curl_exec($curl);
+
+    if ($response === false) {
+        $error_msg = curl_error($curl);
+        curl_close($curl);
+        return 'Error: ' . $error_msg;
+    }
+
+    curl_close($curl);
+    $response_data = json_decode($response, true);
+
+    if (isset($response_data['image_url'])) {
+        return $response_data['image_url'];
+    } else {
+        // Lidar com a falta da URL da imagem ou outros erros da API
+        return null;
+    }
+}
+
 
 
 // Renderizar a página de opções do plugin com a interface para o usuario inserir chave API do chatGPT, o Prompt de sua Preferencia e as Palavras Chaves (FREE)
@@ -537,9 +573,14 @@ function chatgpt_generate_and_publish_posts() {
                 $keyword = trim($keyword);
                 $complete_prompt = str_replace('{palavra-chave}', $keyword, $prompt);
                 $generated_text = chatgpt_generate_text($api_key, $complete_prompt);
+                $generated_image =generate_image_with_dall_e($api_key,$keyword);
+                
 
                 if ($generated_text === null || $generated_text === '') {
                     throw new Exception('Error: Generated text is empty or null.');
+                }
+                if($generated_image===null || $generated_image===''){
+                    throw new Exception('Error: Generated Image is empty or null');
                 }
 
                 $post_data = array(
@@ -565,6 +606,7 @@ function chatgpt_generate_and_publish_posts() {
                 }
 
                 $post_id = wp_insert_post($post_data);
+                set_post_thumbnail($post_id, $generated_image);
             } catch (Exception $e) {
                 // Log the error message for debugging
                 error_log($e->getMessage());
