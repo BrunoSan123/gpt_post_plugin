@@ -375,13 +375,14 @@ function generate_image_with_dall_e($api,$prompt){
 
     curl_close($curl);
     $response_data = json_decode($response, true);
+    print_r($response_data);
     
     if (isset($response_data['data'])) {
         echo '<img src="'.$response_data['data'][0]['url'].'"/>';
         return $response_data['data'][0]['url'];
     } else {
         // Lidar com a falta da URL da imagem ou outros erros da API
-        return null;
+        return print_r('Não foi por algum motivo');
     }
 }
 
