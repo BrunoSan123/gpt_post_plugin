@@ -241,3 +241,7 @@ input[type="checkbox"]:checked + label .radio-btn,.schedule_input:checked+label 
   padding-left:5%;
 }
 
+#image_upload{
+  display:none;
+}
+

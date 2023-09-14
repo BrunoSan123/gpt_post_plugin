@@ -90,12 +90,19 @@
                 </label><br>
     </div>
     <div class="lumini_items">
-                <input class="ia_image_input" type="radio" id="ia_send" name="ia_send" value="auto">
+                <input class="ia_image_input" type="radio" id="ia_google_image" name="ia_google_image" value="auto">
+                <label class="input_ia_google dark_light_radio" for="ia_google_image">
+                    <div class="radio-btn-image"></div>
+                    Google
+                </label><br>
+    </div>
+    <div class="lumini_items">
+                <input class="ia_image_input upload-image" type="radio" id="ia_send" name="ia_send" value="auto">
                 <label class="input_ia_image dark_light_radio" for="ia_send">
                     <div class="radio-btn-image"></div>
                     ENVIAR IMAGEM
                 </label><br>
-                <input type="file" name="image_upload" id="image_upload">
     </div>
+    <input type="file" name="image_upload" id="image_upload">
     </div>
 </aside>

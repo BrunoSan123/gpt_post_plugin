@@ -356,7 +356,7 @@ function generate_image_with_dall_e($api,$prompt){
     );
     $headers=array(
         'Content-type:application/json',
-        'Authorization:Bearer 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',
+        'Authorization:Bearer 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',
     );
     $curl=curl_init();
     curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
@@ -386,8 +386,41 @@ function generate_image_with_dall_e($api,$prompt){
     }
 }
 
-function upload_image(){
+function search_image_with_google($prompt,$api_key,$search_id){
+    $google_url='https://www.googleapis.com/customsearch/v1?q='.$prompt.'&key='.$api_key.'&cx='.$search_id.'&searchType=image';
+    $curl =curl_init($google_url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // Retorna a resposta como uma string
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // Desativa a verificação SSL (não recomendado para produção)
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+
+    $response = curl_exec($curl);
+    if (curl_errno($curl)) {
+        echo 'Erro cURL: ' . curl_error($curl);
+    }
     
+    // Fecha a conexão cURL
+    curl_close($curl);
+    $response_data =json_encode($response);
+    if(isset($response_data['items'])){
+        echo '<img src="'.$response_data['items'][0]['link'].'"/>';
+        return $response_data['items'][0]['link'];
+    }else{
+        return print_r('Erro na imagem');
+    }
+}
+
+function upload_image(){
+    $file=$_FILES['image_upload'];
+    $tmp_name = $file['tmp_name'];
+    $name=$file['name'];
+    $target=plugin_dir_path(__FILE__).'/uploads/';
+    $targetFile= $target.basename($name);
+    if (move_uploaded_file($tmp_name, $targetFile)) {
+        echo 'Upload do arquivo bem-sucedido.';
+    } else {
+        echo 'Falha no upload do arquivo.';
+    }
+ 
 }
 
 
@@ -442,7 +475,7 @@ function chatgpt_plugin_options_page() {
         <h2 class="autopost_title">Autopost Plus</h2>
         <div class="form_parent">
        
-        <form action="" method="post" class="main_form">
+        <form action="" method="post" class="main_form" enctype="multipart/form-data">
            <?php require_once(plugin_dir_path(__FILE__).'templates/sidebar_plugin.php');?>
             <div class="form_item">
             <?php settings_fields('chatgpt_plugin_options'); ?>
@@ -456,6 +489,11 @@ function chatgpt_plugin_options_page() {
             <input type="submit" class="button" name="save_api_key" value="Salvar ChaveAPI" />
             <input type="button" class="button" value="Editar Chave API" onclick="enableApiKeyEditing()" />
             <code style="font-size:12px;font-style: italic;">o GPT-3 da OpenAI tem limitações quanto ao número de tokens por resposta, o que pode limitar a extensão dos textos gerados. A versão da Vinci do GPT-3 pode lidar com até 2048 tokens por request, o que em muitos casos pode ser menos do que 2000 palavras, dependendo do idioma e da complexidade do texto.</code>
+            <br><br>
+            <code>Configure aqui suas credenciais do google para a busa inteligente</code>
+
+            <input type="text" id="google_search_key" name="google_api_key" value="<?php echo esc_attr($google_api_key); ?>" readonly />
+            <input type="text" id="google_search_id" name="google_search_id" value="<?php echo esc_attr($google_search_id); ?>" readonly />
             </div>
 
     <div class="gpt_input_generation">
@@ -572,6 +610,8 @@ function chatgpt_generate_and_publish_posts() {
         $keywords_string = isset($_POST['chatgpt_keywords']) ? sanitize_textarea_field($_POST['chatgpt_keywords']) : '';
         $keywords = explode("\n", $keywords_string);
         $api_key = get_option('chatgpt_api_key');
+        $google_api_key=get_option('google_search_key');
+        $google_search_id=get_option('google_search_id');
         $schedule_datetime = isset($_POST['schedule_datetime']) ? sanitize_text_field($_POST['schedule_datetime']) : '';
         $selected_category_id = intval($_POST['chatgpt_category']);
         $selected_author_id = intval($_POST['chatgpt_author']);
@@ -610,6 +650,12 @@ function chatgpt_generate_and_publish_posts() {
                     $post_data['post_date'] = $schedule_datetime;
                     $post_data['post_date_gmt'] = get_gmt_from_date($schedule_datetime);
                 }
+                if(isset($_POST['ia_send'])){
+                    echo 'foi';
+                    upload_image();
+                    echo 'aqui';
+                 }
+
 
                 $post_id = wp_insert_post($post_data);
                 
@@ -622,6 +668,19 @@ function chatgpt_generate_and_publish_posts() {
                     print_r($post_id);
                     set_post_thumbnail($post_id, $generated_image);
                 }
+
+                // buscca de imagens com a api do customSearch do google
+                if(isset($_POST['ia_google_image'])){
+                    $imagem= search_image_with_google($keyword,$google_api_key, $google_search_id);
+                    if($imagem===null || $imagem===''){
+                        throw new Exception('Error: Generated Image is empty or null');
+                    }
+                    print_r($post_id);
+                    set_post_thumbnail($post_id, $imagem);
+                }
+
+
+
                 
             } catch (Exception $e) {
                 // Log the error message for debugging
@@ -661,8 +720,13 @@ function chatgpt_check_submit_and_generate() {
     // Verificar se o botão "Salvar ChaveAPI" foi clicado e salvar a chave API
     if (isset($_POST['save_api_key'])) {
         $api_key = isset($_POST['chatgpt_api_key']) ? sanitize_text_field($_POST['chatgpt_api_key']) : '';
+        $google_api_key=isset($_POST['google_api_key'])? sanitize_text_field($_POST['google_api_key']):'';
+        $google_search_api_id=isset($_POST['google_search_id'])?sanitize_text_field($_POST['google_search_id']):'';
         update_option('chatgpt_api_key', $api_key);
+        update_option('google_search_key',$google_api_key);
+        update_option('google_search_id',$google_search_api_id);
     }
+
 
     // Verificar se o botão "Criar Textos" foi clicado
     if (isset($_POST['submit']) && (!isset($_POST['chatgpt_form_type']) || $_POST['chatgpt_form_type'] !== 'save_prompt')) {

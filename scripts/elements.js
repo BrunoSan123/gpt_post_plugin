@@ -19,6 +19,9 @@ const api_config =document.querySelector(".api_config")
 const gpt_config =document.querySelector(".chat_gpt_vonfiguration")
 const schedule_container= document.getElementById("schedule_datetime_container")
 const shcedule_input = document.querySelectorAll(".schedule_input")
+const upload_image= document.querySelector(".upload-image")
+const upload_buton = document.querySelector("#image_upload")
+const imageButtons= document.querySelectorAll(".ia_image_input")
 
 
 api_config.addEventListener('click',()=>{
@@ -88,13 +91,30 @@ api_config.addEventListener('click',()=>{
   
   shcedule_input.forEach((e)=>{
       e.addEventListener('click',()=>{
-  
-          if(schedule_radio_button.checked){
+
+        if(schedule_radio_button.checked){
               schedule_container.classList.add("show")
           }else{
               schedule_container.classList.remove("show")
           }
+
       })
+
+  })
+
+  imageButtons.forEach((e)=>{
+    e.addEventListener('change',()=>{
+        if(upload_image.checked){
+            upload_buton.classList.add("show")
+          }else{
+            upload_buton.classList.remove("show")
+          }
+        imageButtons.forEach((j)=>{
+            if(j!==e){
+                j.checked=false;
+            }
+        })
+    })
   })
   
 
