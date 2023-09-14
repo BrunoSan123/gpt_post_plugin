@@ -385,6 +385,10 @@ function generate_image_with_dall_e($api,$prompt){
     }
 }
 
+function upload_image(){
+    
+}
+
 
 
 // Renderizar a página de opções do plugin com a interface para o usuario inserir chave API do chatGPT, o Prompt de sua Preferencia e as Palavras Chaves (FREE)

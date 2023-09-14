@@ -95,6 +95,7 @@
                     <div class="radio-btn-image"></div>
                     ENVIAR IMAGEM
                 </label><br>
+                <input type="file" name="image_upload" id="image_upload">
     </div>
     </div>
 </aside>
