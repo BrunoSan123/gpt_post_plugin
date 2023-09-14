@@ -346,17 +346,17 @@ function chatgpt_generate_text($api_key, $prompt) {
     }
 }
 
-function generate_image_with_dall_e($api_key,$prompt){
+function generate_image_with_dall_e($api,$prompt){
     $dall_e_api_url ='https://api.openai.com/v1/images/generations';
 
     $request_data=array(
-        'text'=>$prompt,
+        'prompt'=>$prompt,
         'n'=>1,
         'size'=>'1024x1024'
     );
     $headers=array(
         'Content-type:application/json',
-        'Authorization:Bearer'.$api_key,
+        'Authorization:Bearer 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',
     );
     $curl=curl_init();
     curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
@@ -375,8 +375,9 @@ function generate_image_with_dall_e($api_key,$prompt){
 
     curl_close($curl);
     $response_data = json_decode($response, true);
-
+    
     if (isset($response_data['data'])) {
+        echo '<img src="'.$response_data['data'][0]['url'].'"/>';
         return $response_data['data'][0]['url'];
     } else {
         // Lidar com a falta da URL da imagem ou outros erros da API
@@ -606,11 +607,14 @@ function chatgpt_generate_and_publish_posts() {
                 }
 
                 $post_id = wp_insert_post($post_data);
+                
+                // geração de imagem com o DALL-E se selecionada a opção
                 if(isset($_POST['ia_dalle'])){
                     $generated_image =generate_image_with_dall_e($api_key,$keyword);
                     if($generated_image===null || $generated_image===''){
                         throw new Exception('Error: Generated Image is empty or null');
                     }
+                    print_r($post_id);
                     set_post_thumbnail($post_id, $generated_image);
                 }
                 
