@@ -93,7 +93,7 @@
                 <input class="ia_image_input" type="radio" id="ia_google_image" name="ia_google_image" value="auto">
                 <label class="input_ia_google dark_light_radio" for="ia_google_image">
                     <div class="radio-btn-image"></div>
-                    Google
+                    GOOGLE
                 </label><br>
     </div>
     <div class="lumini_items">

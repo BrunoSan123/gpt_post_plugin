@@ -25,11 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
     add_action('init','enqueue_script_style');
 
-
-
-
-    
-    
     if ( function_exists( 'chatgpt_freemius_integration' ) ) {
         chatgpt_freemius_integration()->set_basename( true, __FILE__ );
     } else {
@@ -359,7 +354,7 @@ function generate_image_with_dall_e($api,$prompt){
     );
     $headers=array(
         'Content-type:application/json',
-        'Authorization:Bearer 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',
+        'Authorization:Bearer '.$api,
     );
     $curl=curl_init();
     curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
@@ -378,7 +373,7 @@ function generate_image_with_dall_e($api,$prompt){
 
     curl_close($curl);
     $response_data = json_decode($response, true);
-    print_r($response_data);
+    //print_r($response_data);
     
     if (isset($response_data['data'])) {
         echo '<img src="'.$response_data['data'][0]['url'].'"/>';
@@ -389,8 +384,10 @@ function generate_image_with_dall_e($api,$prompt){
     }
 }
 
+//função que faz busca de imagem com a API Custom-Search
+
 function search_image_with_google($prompt,$api_key,$search_id){
-    $google_url='https://www.googleapis.com/customsearch/v1?q='.$prompt.'&key='.$api_key.'&cx='.$search_id.'&searchType=image';
+    $google_url='https://www.googleapis.com/customsearch/v1?q='.$prompt.'&key='.$api_key.'&cx='.$search_id.'&searchType=image&rights=cc_attribute';
     $curl =curl_init($google_url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // Retorna a resposta como uma string
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // Desativa a verificação SSL (não recomendado para produção)

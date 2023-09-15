@@ -107,6 +107,12 @@ input[type="checkbox"]:checked + label .radio-btn,.schedule_input:checked+label 
   border-radius: 12px
 }
 
+@media(max-width:1360px){
+  #chatgpt_model{
+    width:20%;
+  }
+}
+
 .gpt_input{
   display:none !important;
 }
