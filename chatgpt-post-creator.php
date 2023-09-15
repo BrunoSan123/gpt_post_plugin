@@ -12,6 +12,9 @@ Author: <a href="https://visaopontocom.com">VPC Digital</a>
 */
 
 //integração com Freemius
+
+use Illuminate\Support\Facades\Response;
+
 if ( ! defined( 'ABSPATH' ) ) {
         exit;
     }
@@ -400,10 +403,11 @@ function search_image_with_google($prompt,$api_key,$search_id){
     
     // Fecha a conexão cURL
     curl_close($curl);
-    $response_data =json_encode($response);
-    if(isset($response_data['items'])){
-        echo '<img src="'.$response_data['items'][0]['link'].'"/>';
-        return $response_data['items'][0]['link'];
+    $response_data =json_decode($response);
+    //print_r(var_dump($response_data->items[0]->link));
+    if(isset($response_data->items)){
+        echo '<img id="img_test" src="'.$response_data->items[0]->link.'"/>';
+        return $response_data->items[0]->link;
     }else{
         return print_r('Erro na imagem');
     }
@@ -438,6 +442,8 @@ function chatgpt_plugin_options_page() {
     
     
     $api_key = get_option('chatgpt_api_key');
+    $google_api_key =get_option('google_search_key');
+    $google_search_id =get_option('google_search_id');
     $saved_prompt = get_option('chatgpt_saved_prompt');
     $selected_model = get_option('chatgpt_selected_model');
      $categories = get_categories(array('hide_empty' => 0));
@@ -466,7 +472,11 @@ function chatgpt_plugin_options_page() {
     <script>
         function enableApiKeyEditing() {
             var apiKeyInput = document.getElementById('chatgpt_api_key');
+            var googleKeys=document.querySelectorAll('.google_api_fields')
             apiKeyInput.readOnly = !apiKeyInput.readOnly;
+            googleKeys.forEach((e)=>{
+                e.readOnly=!e.readOnly;
+            })
         }
     </script>
     
@@ -492,8 +502,8 @@ function chatgpt_plugin_options_page() {
             <br><br>
             <code>Configure aqui suas credenciais do google para a busa inteligente</code>
 
-            <input type="text" id="google_search_key" name="google_api_key" value="<?php echo esc_attr($google_api_key); ?>" readonly />
-            <input type="text" id="google_search_id" name="google_search_id" value="<?php echo esc_attr($google_search_id); ?>" readonly />
+            <input type="text" id="google_search_key" class="google_api_fields" name="google_api_key" value="<?php echo esc_attr($google_api_key); ?>" readonly />
+            <input type="text" id="google_search_id"  class="google_api_fields" name="google_search_id" value="<?php echo esc_attr($google_search_id); ?>" readonly />
             </div>
 
     <div class="gpt_input_generation">
@@ -675,7 +685,6 @@ function chatgpt_generate_and_publish_posts() {
                     if($imagem===null || $imagem===''){
                         throw new Exception('Error: Generated Image is empty or null');
                     }
-                    print_r($post_id);
                     set_post_thumbnail($post_id, $imagem);
                 }
 
