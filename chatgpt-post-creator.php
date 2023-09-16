@@ -344,7 +344,7 @@ function chatgpt_generate_text($api_key, $prompt) {
     }
 }
 
-function generate_image_with_dall_e($api,$prompt){
+function generate_image_with_dall_e($api,$prompt,$post_id){
     $dall_e_api_url ='https://api.openai.com/v1/images/generations';
 
     $request_data=array(
@@ -377,7 +377,10 @@ function generate_image_with_dall_e($api,$prompt){
     
     if (isset($response_data['data'])) {
         echo '<img src="'.$response_data['data'][0]['url'].'"/>';
-        return $response_data['data'][0]['url'];
+/*         $matches=array();
+        preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
+        print_r($body); */
+        importar_imagem_destaque($response_data['data'][0]['url'],$post_id);
     } else {
         // Lidar com a falta da URL da imagem ou outros erros da API
         return print_r('Não foi por algum motivo');
@@ -423,6 +426,53 @@ function upload_image(){
     }
  
 }
+
+function importar_imagem_destaque($imagem_url, $post_id) {
+    // Verificar se a extensão do arquivo é permitida (opcional)
+ /*    $extensoes_permitidas = array('jpg', 'jpeg', 'png', 'gif');
+    $extensao = pathinfo($imagem_url, PATHINFO_EXTENSION);
+    if (!in_array(strtolower($extensao), $extensoes_permitidas)) {
+        $error='Extensão não permitida';
+        echo $error; // Extensão não permitida
+    } */
+
+    // Fazer o download da imagem
+    $response=wp_safe_remote_get($imagem_url);
+    $body = wp_remote_retrieve_body($response);
+    $matches=array();
+    preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
+    $imagem_temp = download_url($matches[1]);
+
+    // Verificar se o download foi bem-sucedido
+    if (is_wp_error($imagem_temp)) {
+        return is_wp_error($imagem_temp); // Erro no download
+    }
+
+    // Obter o tipo de mídia com base na extensão do arquivo
+    $tipo_midia = wp_check_filetype(basename($imagem_url), null);
+
+
+    // Preparar dados para a biblioteca de mídia
+    $anexo = array(
+        'post_title'     => sanitize_file_name(pathinfo($imagem_url, PATHINFO_FILENAME)),
+        'post_mime_type' => $tipo_midia['type'],
+    );
+
+    // Inserir na biblioteca de mídia e obter o ID do anexo
+    $anexo_id = wp_insert_attachment($anexo, $imagem_temp, $post_id);
+
+    // Atualizar metadados do anexo
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+    $anexo_data = wp_generate_attachment_metadata($anexo_id, $imagem_temp);
+    wp_update_attachment_metadata($anexo_id, $anexo_data);
+
+    // Definir a imagem em destaque no post
+    set_post_thumbnail($post_id, $anexo_id);
+    print_r($anexo_id);
+
+    return $anexo_id; // Retorna o ID do anexo
+}
+
 
 
 
@@ -668,12 +718,11 @@ function chatgpt_generate_and_publish_posts() {
                 
                 // geração de imagem com o DALL-E se selecionada a opção
                 if(isset($_POST['ia_dalle'])){
-                    $generated_image =generate_image_with_dall_e($api_key,$keyword);
+                    $generated_image =generate_image_with_dall_e($api_key,$keyword,$post_id);
                     if($generated_image===null || $generated_image===''){
                         throw new Exception('Error: Generated Image is empty or null');
                     }
-                    print_r($post_id);
-                    set_post_thumbnail($post_id, $generated_image);
+                    
                 }
 
                 // buscca de imagens com a api do customSearch do google
