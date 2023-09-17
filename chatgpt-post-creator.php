@@ -380,7 +380,7 @@ function generate_image_with_dall_e($api,$prompt,$post_id){
 /*         $matches=array();
         preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
         print_r($body); */
-        importar_imagem_destaque($response_data['data'][0]['url'],$post_id);
+        importar_imagem_destaque($response_data['data'][0]['url'],$post_id,$prompt);
     } else {
         // Lidar com a falta da URL da imagem ou outros erros da API
         return print_r('Não foi por algum motivo');
@@ -389,7 +389,7 @@ function generate_image_with_dall_e($api,$prompt,$post_id){
 
 //função que faz busca de imagem com a API Custom-Search
 
-function search_image_with_google($prompt,$api_key,$search_id){
+function search_image_with_google($prompt,$api_key,$search_id,$post_id){
     $google_url='https://www.googleapis.com/customsearch/v1?q='.$prompt.'&key='.$api_key.'&cx='.$search_id.'&searchType=image&rights=cc_attribute';
     $curl =curl_init($google_url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // Retorna a resposta como uma string
@@ -407,70 +407,85 @@ function search_image_with_google($prompt,$api_key,$search_id){
     //print_r(var_dump($response_data->items[0]->link));
     if(isset($response_data->items)){
         echo '<img id="img_test" src="'.$response_data->items[0]->link.'"/>';
-        return $response_data->items[0]->link;
+        importar_imagem_destaque($response_data->items[0]->link,$post_id,$prompt);
     }else{
         return print_r('Erro na imagem');
     }
 }
 
-function upload_image(){
+function upload_image($post_id){
     $file=$_FILES['image_upload'];
     $tmp_name = $file['tmp_name'];
     $name=$file['name'];
-    $target=plugin_dir_path(__FILE__).'/uploads/';
-    $targetFile= $target.basename($name);
-    if (move_uploaded_file($tmp_name, $targetFile)) {
-        echo 'Upload do arquivo bem-sucedido.';
-    } else {
-        echo 'Falha no upload do arquivo.';
-    }
- 
+    $temp_path = WP_CONTENT_DIR . '/uploads/' . $name;
+    file_put_contents( $temp_path, $file );
+    $filetype = wp_check_filetype( $temp_path, null );
+    $attachment = array(
+        'post_mime_type' => $filetype['type'],
+        'post_title'     => sanitize_file_name( $name ),
+        'post_content'   => '',
+        'post_status'    => 'inherit',
+    );
+    $attachment_id = wp_insert_attachment( $attachment, $temp_path );
+    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+    $attach_data = wp_generate_attachment_metadata( $attachment_id, $temp_path );
+    wp_update_attachment_metadata( $attachment_id, $attach_data );
+    set_post_thumbnail( $post_id, $attachment_id );
+    return 'Imagem inserida na biblioteca e definida como imagem de destaque com o ID: ' . $attachment_id;
+
 }
 
-function importar_imagem_destaque($imagem_url, $post_id) {
-    // Verificar se a extensão do arquivo é permitida (opcional)
- /*    $extensoes_permitidas = array('jpg', 'jpeg', 'png', 'gif');
-    $extensao = pathinfo($imagem_url, PATHINFO_EXTENSION);
-    if (!in_array(strtolower($extensao), $extensoes_permitidas)) {
-        $error='Extensão não permitida';
-        echo $error; // Extensão não permitida
-    } */
-
-    // Fazer o download da imagem
-    $response=wp_safe_remote_get($imagem_url);
-    $body = wp_remote_retrieve_body($response);
-    $matches=array();
-    preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
-    $imagem_temp = download_url($matches[1]);
-
-    // Verificar se o download foi bem-sucedido
-    if (is_wp_error($imagem_temp)) {
-        return is_wp_error($imagem_temp); // Erro no download
+function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
+    // Certifique-se de que o WordPress está carregado
+    if ( ! defined( 'ABSPATH' ) ) {
+        require_once( 'wp-load.php' );
     }
 
-    // Obter o tipo de mídia com base na extensão do arquivo
-    $tipo_midia = wp_check_filetype(basename($imagem_url), null);
+    // Faz a requisição segura para obter o conteúdo da imagem
+    $response = wp_safe_remote_get( $imagem_url );
 
+    // Verifica se a requisição foi bem-sucedida
+    if ( is_wp_error( $response ) ) {
+        // Lida com o erro, se necessário
+        return 'Erro ao buscar a imagem: ' . esc_html( $response->get_error_message() );
+    } else {
+        // Obtém o conteúdo da resposta
+        $body = wp_remote_retrieve_body( $response );
 
-    // Preparar dados para a biblioteca de mídia
-    $anexo = array(
-        'post_title'     => sanitize_file_name(pathinfo($imagem_url, PATHINFO_FILENAME)),
-        'post_mime_type' => $tipo_midia['type'],
-    );
+        // Gere um nome de arquivo para a imagem (você pode personalizá-lo conforme necessário)
+        $filename = $image_name.'.jpg';
 
-    // Inserir na biblioteca de mídia e obter o ID do anexo
-    $anexo_id = wp_insert_attachment($anexo, $imagem_temp, $post_id);
+        // Caminho completo para onde a imagem será salva temporariamente
+        $temp_path = WP_CONTENT_DIR . '/uploads/' . $filename;
 
-    // Atualizar metadados do anexo
-    require_once(ABSPATH . 'wp-admin/includes/image.php');
-    $anexo_data = wp_generate_attachment_metadata($anexo_id, $imagem_temp);
-    wp_update_attachment_metadata($anexo_id, $anexo_data);
+        // Salva o conteúdo da imagem em um arquivo temporário
+        file_put_contents( $temp_path, $body );
 
-    // Definir a imagem em destaque no post
-    set_post_thumbnail($post_id, $anexo_id);
-    print_r($anexo_id);
+        // Configuração do tipo de mídia a ser inserido na biblioteca
+        $filetype = wp_check_filetype( $temp_path, null );
 
-    return $anexo_id; // Retorna o ID do anexo
+        // Array de dados do arquivo a ser inserido na biblioteca
+        $attachment = array(
+            'post_mime_type' => $filetype['type'],
+            'post_title'     => sanitize_file_name( $filename ),
+            'post_content'   => '',
+            'post_status'    => 'inherit',
+        );
+
+        // Faz o upload do arquivo para a biblioteca de mídia
+        $attachment_id = wp_insert_attachment( $attachment, $temp_path );
+
+        // Atualiza metadados do arquivo
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        $attach_data = wp_generate_attachment_metadata( $attachment_id, $temp_path );
+        wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+        // Define a imagem como imagem de destaque do post
+        set_post_thumbnail( $post_id, $attachment_id );
+
+        // Opcional: Exibe o ID do anexo inserido
+        return 'Imagem inserida na biblioteca e definida como imagem de destaque com o ID: ' . $attachment_id;
+    }
 }
 
 
@@ -707,14 +722,16 @@ function chatgpt_generate_and_publish_posts() {
                     $post_data['post_date'] = $schedule_datetime;
                     $post_data['post_date_gmt'] = get_gmt_from_date($schedule_datetime);
                 }
-                if(isset($_POST['ia_send'])){
-                    echo 'foi';
-                    upload_image();
-                    echo 'aqui';
-                 }
+
 
 
                 $post_id = wp_insert_post($post_data);
+                
+                if(isset($_POST['ia_send'])){
+                    echo 'foi';
+                    upload_image($post_id);
+                    echo 'aqui';
+                 }
                 
                 // geração de imagem com o DALL-E se selecionada a opção
                 if(isset($_POST['ia_dalle'])){
@@ -727,7 +744,7 @@ function chatgpt_generate_and_publish_posts() {
 
                 // buscca de imagens com a api do customSearch do google
                 if(isset($_POST['ia_google_image'])){
-                    $imagem= search_image_with_google($keyword,$google_api_key, $google_search_id);
+                    $imagem= search_image_with_google($keyword,$google_api_key, $google_search_id,$post_id);
                     if($imagem===null || $imagem===''){
                         throw new Exception('Error: Generated Image is empty or null');
                     }
