@@ -748,12 +748,6 @@ function chatgpt_generate_and_publish_posts() {
                     set_post_thumbnail($post_id, $imagem);
                 }
 
-                if(isset($_POST['new_category'])){
-                    $category_name=$_POST['new_category'];
-                    create_new_category($category_name);
-                }
-
-
 
                 
             } catch (Exception $e) {

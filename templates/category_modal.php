@@ -8,4 +8,8 @@
     </div>
 </div>
 <?php
+        if(isset($_POST['new_category'])){
+            $category_name=$_POST['new_category'];
+                create_new_category($category_name);
+            }
 ?>
