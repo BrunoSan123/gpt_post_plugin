@@ -251,3 +251,13 @@ input[type="checkbox"]:checked + label .radio-btn,.schedule_input:checked+label 
   display:none;
 }
 
+
+.modal_category{
+  display:none;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  background: rgba(0,0,0,.6);
+}
+

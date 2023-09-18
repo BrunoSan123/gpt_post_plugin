@@ -1,28 +1,6 @@
-<head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300&display=swap" rel="stylesheet">
-</head>
 <?php
-/*
-Plugin Name: ChatGPT Autopost
-Description: Um plugin para criar e postar automaticamente textos gerados pelo ChatGPT através palavras-chave e prompts personalizados.
-Version: 2.1.1
-Author: <a href="https://visaopontocom.com">VPC Digital</a>
-*/
 
-//integração com Freemius
-
-use Illuminate\Support\Facades\Response;
-
-if ( ! defined( 'ABSPATH' ) ) {
-        exit;
-    }
-
-    //import de funções
-    require_once(dirname(__FILE__).'/functions/actions_functions.php');
-
-    function enqueue_script_style(){
+function enqueue_script_style(){
         wp_enqueue_style( 'gpt_plugin_style', plugin_dir_url(__FILE__).'style.css' );
     }
 
@@ -530,105 +508,10 @@ function chatgpt_plugin_options_page() {
     $icons=array(
         '<svg class="gpt_dash_icos" data-name="ray" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke-width="2" class="h-4 w-4 transition-colors text-brand-green"><path fill="currentColor" d="M9.586 1.526A.6.6 0 0 0 8.553 1l-6.8 7.6a.6.6 0 0 0 .447 1h5.258l-1.044 4.874A.6.6 0 0 0 7.447 15l6.8-7.6a.6.6 0 0 0-.447-1H8.542l1.044-4.874Z"/></svg>',
         '<svg class="gpt_dash_icos" data-name="stars" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke-width="2" class="h-4 w-4 transition-colors group-hover/button:text-brand-purple"><path fill="currentColor" d="M12.784 1.442a.8.8 0 0 0-1.569 0l-.191.953a.8.8 0 0 1-.628.628l-.953.19a.8.8 0 0 0 0 1.57l.953.19a.8.8 0 0 1 .628.629l.19.953a.8.8 0 0 0 1.57 0l.19-.953a.8.8 0 0 1 .629-.628l.953-.19a.8.8 0 0 0 0-1.57l-.953-.19a.8.8 0 0 1-.628-.629l-.19-.953h-.002ZM5.559 4.546a.8.8 0 0 0-1.519 0l-.546 1.64a.8.8 0 0 1-.507.507l-1.64.546a.8.8 0 0 0 0 1.519l1.64.547a.8.8 0 0 1 .507.505l.546 1.641a.8.8 0 0 0 1.519 0l.546-1.64a.8.8 0 0 1 .506-.507l1.641-.546a.8.8 0 0 0 0-1.519l-1.64-.546a.8.8 0 0 1-.507-.506L5.56 4.546Zm5.6 6.4a.8.8 0 0 0-1.519 0l-.147.44a.8.8 0 0 1-.505.507l-.441.146a.8.8 0 0 0 0 1.519l.44.146a.8.8 0 0 1 .507.506l.146.441a.8.8 0 0 0 1.519 0l.147-.44a.8.8 0 0 1 .506-.507l.44-.146a.8.8 0 0 0 0-1.519l-.44-.147a.8.8 0 0 1-.507-.505l-.146-.441Z"/></svg>'
-    )
-    
-     
-    ?>
-    <script>
-        function enableApiKeyEditing() {
-            var apiKeyInput = document.getElementById('chatgpt_api_key');
-            var googleKeys=document.querySelectorAll('.google_api_fields')
-            apiKeyInput.readOnly = !apiKeyInput.readOnly;
-            googleKeys.forEach((e)=>{
-                e.readOnly=!e.readOnly;
-            })
-        }
-    </script>
-    
-    <div class="wrap">
-        <?php require_once(plugin_dir_path(__FILE__).'templates/gpt_mode_swicth.php')?>
-        <h2 class="autopost_title">Autopost Plus</h2>
-        <div class="form_parent">
-       
-        <form action="" method="post" class="main_form" enctype="multipart/form-data">
-           <?php require_once(plugin_dir_path(__FILE__).'templates/sidebar_plugin.php');?>
-            <div class="form_item">
-            <?php settings_fields('chatgpt_plugin_options'); ?>
-            <?php do_settings_sections('chatgpt_plugin'); ?>
-
-            <p class="api_config" style="text-align: center;"><strong>Configurações de chave API</strong></p>
-
-            <div class="chat_gpt_vonfiguration">
-            <p>Caso não tenha uma chave API, gere uma no link: <a href="https://platform.openai.com/account/api-keys" target="_blank">https://platform.openai.com/account/api-keys</a></p>
-            <input type="text" id="chatgpt_api_key" name="chatgpt_api_key" value="<?php echo esc_attr($api_key); ?>" readonly />
-            <input type="submit" class="button" name="save_api_key" value="Salvar ChaveAPI" />
-            <input type="button" class="button" value="Editar Chave API" onclick="enableApiKeyEditing()" />
-            <code style="font-size:12px;font-style: italic;">o GPT-3 da OpenAI tem limitações quanto ao número de tokens por resposta, o que pode limitar a extensão dos textos gerados. A versão da Vinci do GPT-3 pode lidar com até 2048 tokens por request, o que em muitos casos pode ser menos do que 2000 palavras, dependendo do idioma e da complexidade do texto.</code>
-            <br><br>
-            <code>Configure aqui suas credenciais do google para a busa inteligente</code>
-
-            <input type="text" id="google_search_key" class="google_api_fields" name="google_api_key" value="<?php echo esc_attr($google_api_key); ?>" readonly />
-            <input type="text" id="google_search_id"  class="google_api_fields" name="google_search_id" value="<?php echo esc_attr($google_search_id); ?>" readonly />
-            </div>
-
-    <div class="gpt_input_generation">
-        <div class="generation_parent">
-         <div class="generation_child">
-            <p class="inputs_title"><strong>PROMPT</strong></p>
-            <textarea class="chat_textarea" id="chatgpt_prompt" name="chatgpt_prompt" rows="5" cols="100" placeholder="Escreva um artigo sobre {palavra-chave}"><?php echo esc_textarea($saved_prompt); ?></textarea>
-            <div class="generate_text_button">
-            <input style="margin-top: 3%; text-decoration:none; color:#fff;" type="button" class="button btn_submit_text" id="save_prompt" value="Salvar Prompt" <?php echo chatgpt_freemius_integration()->is_not_paying() ? 'disabled' : ''; ?> />
-            </div>
-        </div>
-
-        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-            <span>(Versão Premium)</span>
-        <?php endif; ?>
-
-           
-            <div class="generation_child">
-                <p class="inputs_title"><strong>PALAVAS CHAVE</strong></p>
-                <textarea class="chatgpt_keys chat_textarea" name="chatgpt_keywords" rows="10" cols="100" placeholder="Palavra-chave 1&#10;Palavra-chave 2&#10;Palavra-chave 3"></textarea>
-            </div>
-            
-            <br><br>
-         
+    );
 
 
-        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-            <span>(Versão Premium)</span>
-        <?php endif; ?>
-
-            <br><br>
-
-        <?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-            <span>(Versão Premium)</span>
-        <?php endif; ?>
-
-
-<input type="hidden" name="chatgpt_form_submitted" value="1">
-
-<?php if ( chatgpt_freemius_integration()->is_not_paying() ) : ?>
-    <span>(Versão Premium)</span>
-<?php endif; ?>
-
-
-            <div class="generate_text_button">
-                <input name="submit" class="button btn_submit_text button-primary" type="submit" value="<?php esc_attr_e('Gerar Textos'); ?>" />
-           </div>
-        </div>
-    </div>
-        </div>
-        </form>
-        </div>
-    </div>
-    <?php require_once(dirname(__FILE__).'/templates/category_modal.php');?>
-    <?php
-    
-}
-
-
-//função para registrar as configurações do plugin, incluindo a chave API (FREE)
+    //função para registrar as configurações do plugin, incluindo a chave API (FREE)
 function chatgpt_register_prompt_settings() {
     register_setting('chatgpt-settings-group', 'chatgpt_saved_prompt');
 }
@@ -746,11 +629,6 @@ function chatgpt_generate_and_publish_posts() {
                         throw new Exception('Error: Generated Image is empty or null');
                     }
                     set_post_thumbnail($post_id, $imagem);
-                }
-
-                if(isset($_POST['new_category'])){
-                    $category_name=$_POST['new_category'];
-                    create_new_category($category_name);
                 }
 
 
@@ -888,11 +766,8 @@ function chatgpt_bulk_action_notice() {
 add_action('admin_notices', 'chatgpt_bulk_action_notice');
 }
 
-
-
 // Mostrar mensagem de sucesso quando os textos são criados e publicados com sucesso (FREE)
 function chatgpt_show_success_message() {
     add_settings_error('chatgpt_messages', 'chatgpt_message', 'Textos criados e publicados com sucesso!', 'updated');
 }
-
-
+}

@@ -37,6 +37,9 @@
          <?php 
             $count_category++;
         endforeach; ?>
+               <input type="checkbox"  value="criar categoria" class="category_input" id="new_category">
+               <label for="new_category" class="authors_input_label new_category">Criar Categoria</label> 
+               
         </div>
     </div>
 </div>

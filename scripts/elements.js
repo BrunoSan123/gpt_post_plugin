@@ -22,6 +22,8 @@ const shcedule_input = document.querySelectorAll(".schedule_input")
 const upload_image= document.querySelector(".upload-image")
 const upload_buton = document.querySelector("#image_upload")
 const imageButtons= document.querySelectorAll(".ia_image_input")
+const new_category_input= document.querySelector(".new_category")
+const category_input_text=document.querySelector(".modal_category")
 
 
 api_config.addEventListener('click',()=>{
@@ -116,6 +118,10 @@ api_config.addEventListener('click',()=>{
         })
     })
   })
+
+   new_category_input.addEventListener('click',()=>{
+    category_input_text.classList.toggle("show")
+  }) 
   
 
 }
