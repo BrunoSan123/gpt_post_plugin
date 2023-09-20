@@ -24,6 +24,8 @@
          <?php 
             $count_author++;
         endforeach; ?>
+            <input type="checkbox"  value="criar usuario" class="author_input" id="new_user">
+            <label for="new_user" class="authors_input_label new_author">Criar Usuario</label> 
          </div>
     </div>
 

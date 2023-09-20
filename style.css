@@ -260,4 +260,7 @@ input[type="checkbox"]:checked + label .radio-btn,.schedule_input:checked+label 
   top: 0;
   background: rgba(0,0,0,.6);
 }
+.container_user,.container_category,.user_input_password,#new_user_email{
+  display:none;
+}
 

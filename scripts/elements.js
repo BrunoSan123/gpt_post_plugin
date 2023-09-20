@@ -23,7 +23,13 @@ const upload_image= document.querySelector(".upload-image")
 const upload_buton = document.querySelector("#image_upload")
 const imageButtons= document.querySelectorAll(".ia_image_input")
 const new_category_input= document.querySelector(".new_category")
-const category_input_text=document.querySelector(".modal_category")
+const new_user_input = document.querySelector(".new_author")
+const new_user_password=document.querySelector(".user_input_password")
+const new_user_email=document.getElementById("new_user_email")
+const user_input_text=document.querySelector(".container_user");
+const category_input_text=document.querySelector(".container_category");
+const user_category_modal=document.querySelector(".modal_category")
+const modal_btn_close=document.querySelector(".btn_close")
 
 
 api_config.addEventListener('click',()=>{
@@ -120,8 +126,24 @@ api_config.addEventListener('click',()=>{
   })
 
    new_category_input.addEventListener('click',()=>{
-    category_input_text.classList.toggle("show")
-  }) 
+    user_category_modal.classList.add("show")
+    category_input_text.classList.add("show")
+    user_input_text.classList.remove("show")
+    new_user_email.classList.remove("show")
+    new_user_password.classList.remove("show")
+    }) 
+
+    new_user_input.addEventListener('click',()=>{
+        user_category_modal.classList.add("show")
+        user_input_text.classList.add("show")
+        category_input_text.classList.remove("show")
+        new_user_email.classList.add("show")
+        new_user_password.classList.add("show")
+    })
+
+    modal_btn_close.addEventListener('click',()=>{
+        user_category_modal.classList.remove("show");
+    })
   
 
 }
