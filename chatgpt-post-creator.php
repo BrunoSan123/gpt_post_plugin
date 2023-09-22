@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
     //import de funções
     require_once(dirname(__FILE__).'/functions/actions_functions.php');
+    require_once(dirname(__FILE__).'/crentials/credentials.php');
 
     function enqueue_script_style(){
         wp_enqueue_style( 'gpt_plugin_style', plugin_dir_url(__FILE__).'style.css' );
@@ -348,46 +349,98 @@ function chatgpt_generate_text($api_key, $prompt) {
 }
 
 function generate_image_with_dall_e($api,$prompt,$post_id){
-    $dall_e_api_url ='https://api.openai.com/v1/images/generations';
+        $dall_e_api_url ='https://api.openai.com/v1/images/generations';
 
+        $request_data=array(
+            'prompt'=>$prompt,
+            'n'=>1,
+            'size'=>'1024x1024'
+        );
+        $headers=array(
+            'Content-type:application/json',
+            'Authorization:Bearer '.$api,
+        );
+        $curl=curl_init();
+        curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($request_data));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($curl);
+
+        if ($response === false) {
+            $error_msg = curl_error($curl);
+            curl_close($curl);
+            return 'Error: ' . $error_msg;
+        }
+
+        curl_close($curl);
+        $response_data = json_decode($response, true);
+        //print_r($response_data);
+        
+        if (isset($response_data['data'])) {
+            echo '<img src="'.$response_data['data'][0]['url'].'"/>';
+    /*         $matches=array();
+            preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
+            print_r($body); */
+            importar_imagem_destaque($response_data['data'][0]['url'],$post_id,$prompt);
+        } else {
+            // Lidar com a falta da URL da imagem ou outros erros da API
+            return print_r('Não foi por algum motivo');
+        }
+}
+
+function generate_image_with_mj($mj_api, $prompt,$post_id){
+    $mj_url='https://api.thenextleg.io/v2/imagine';
     $request_data=array(
-        'prompt'=>$prompt,
-        'n'=>1,
-        'size'=>'1024x1024'
+        'msg'=>$prompt,
+        'ref'=> "",
+        'webhookOverride'=> "",
+        'ignorePrefilter'=> "false"
     );
     $headers=array(
         'Content-type:application/json',
-        'Authorization:Bearer '.$api,
+        'Authorization:Bearer '.$mj_api,
     );
-    $curl=curl_init();
-    curl_setopt($curl, CURLOPT_URL,$dall_e_api_url);
+
+    $curl= curl_init();
+    curl_setopt($curl, CURLOPT_URL,$mj_url);
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($request_data));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     $response = curl_exec($curl);
-
-    if ($response === false) {
-        $error_msg = curl_error($curl);
-        curl_close($curl);
-        return 'Error: ' . $error_msg;
-    }
-
     curl_close($curl);
-    $response_data = json_decode($response, true);
-    //print_r($response_data);
-    
-    if (isset($response_data['data'])) {
-        echo '<img src="'.$response_data['data'][0]['url'].'"/>';
-/*         $matches=array();
-        preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
-        print_r($body); */
-        importar_imagem_destaque($response_data['data'][0]['url'],$post_id,$prompt);
-    } else {
-        // Lidar com a falta da URL da imagem ou outros erros da API
-        return print_r('Não foi por algum motivo');
+
+    $response_data=json_decode($response,true);
+
+    if(isset($response_data['messageId'])){
+        $curl_get_url='https://api.thenextleg.io/v2/message/'.$response_data['messageId'].'?expireMins=2';
+        $get_curl_mj=curl_init();
+        $headers=array(
+            'Content-type:application/json',
+            'Authorization:Bearer '.$mj_api,
+        );
+        curl_setopt($get_curl_mj, CURLOPT_URL, $curl_get_url);
+        curl_setopt($get_curl_mj, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($get_curl_mj, CURLOPT_RETURNTRANSFER, true);
+        //curl_setopt($get_curl_mj, CURLOPT_TIMEOUT, 10);
+        $get_respose=curl_exec($get_curl_mj);
+        $get_response_data=json_decode($get_respose);
+        print_r($get_response_data);
+        if(isset($get_response_data->imageUrls[0])){
+            echo '<img src="'.$get_response_data->imageUrls[0].'"/>';
+            importar_imagem_destaque($get_response_data->imageUrls[0],$post_id,$prompt);
+        }else{
+            print_r('MidJourney falahou em obter a imagem');
+        }
+    }else{
+        echo 'Erro no post'; 
     }
+    curl_close($get_curl_mj);
+
 }
 
 //função que faz busca de imagem com a API Custom-Search
@@ -737,6 +790,14 @@ function chatgpt_generate_and_publish_posts() {
                         throw new Exception('Error: Generated Image is empty or null');
                     }
                     
+                }
+
+                if(isset($_POST['ia_midjournal'])){
+                    $token=Credentials::getCredentials();
+                    $mj_generated_image=generate_image_with_mj($token,$keyword,$post_id);
+                    if($mj_generated_image===null || $mj_generated_image===''){
+                        throw new Exception('Error: Generated Image is empty or null');
+                    }
                 }
 
                 // buscca de imagens com a api do customSearch do google
