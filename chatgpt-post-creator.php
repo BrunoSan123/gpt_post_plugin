@@ -1,8 +1,3 @@
-<head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300&display=swap" rel="stylesheet">
-</head>
 <?php
 /*
 Plugin Name: ChatGPT Autopost
@@ -22,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     //import de funções
     require_once(dirname(__FILE__).'/functions/actions_functions.php');
     require_once(dirname(__FILE__).'/crentials/credentials.php');
+    require_once(dirname(__FILE__).'/helpers/helpers.php');
 
     function enqueue_script_style(){
         wp_enqueue_style( 'gpt_plugin_style', plugin_dir_url(__FILE__).'style.css' );
@@ -392,6 +388,7 @@ function generate_image_with_dall_e($api,$prompt,$post_id){
 }
 
 function generate_image_with_mj($mj_api, $prompt,$post_id){
+    $image_array=[];
     $mj_url='https://api.thenextleg.io/v2/imagine';
     $request_data=array(
         'msg'=>$prompt,
@@ -416,30 +413,9 @@ function generate_image_with_mj($mj_api, $prompt,$post_id){
 
     $response_data=json_decode($response,true);
 
-    if(isset($response_data['messageId'])){
-        $curl_get_url='https://api.thenextleg.io/v2/message/'.$response_data['messageId'].'?expireMins=2';
-        $get_curl_mj=curl_init();
-        $headers=array(
-            'Content-type:application/json',
-            'Authorization:Bearer '.$mj_api,
-        );
-        curl_setopt($get_curl_mj, CURLOPT_URL, $curl_get_url);
-        curl_setopt($get_curl_mj, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($get_curl_mj, CURLOPT_RETURNTRANSFER, true);
-        //curl_setopt($get_curl_mj, CURLOPT_TIMEOUT, 10);
-        $get_respose=curl_exec($get_curl_mj);
-        $get_response_data=json_decode($get_respose);
-        print_r($get_response_data);
-        if(isset($get_response_data->imageUrls[0])){
-            echo '<img src="'.$get_response_data->imageUrls[0].'"/>';
-            importar_imagem_destaque($get_response_data->imageUrls[0],$post_id,$prompt);
-        }else{
-            print_r('MidJourney falahou em obter a imagem');
-        }
-    }else{
-        echo 'Erro no post'; 
-    }
-    curl_close($get_curl_mj);
+    get_MJ_img($response_data['messageId'],$mj_api,$post_id,$prompt,0,$image_array);
+    print_r('hello '.$image_array);
+
 
 }
 
@@ -542,6 +518,47 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
         // Opcional: Exibe o ID do anexo inserido
         return 'Imagem inserida na biblioteca e definida como imagem de destaque com o ID: ' . $attachment_id;
     }
+}
+
+
+function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
+    $maxRetry = 20;
+    if(isset($msg)){
+        $curl_get_url='https://api.thenextleg.io/v2/message/'.$msg.'?expireMins=2';
+        $get_curl_mj=curl_init();
+        $headers=array(
+            'Content-type:application/json',
+            'Authorization:Bearer '.$api,
+        );
+        curl_setopt($get_curl_mj, CURLOPT_URL, $curl_get_url);
+        curl_setopt($get_curl_mj, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($get_curl_mj, CURLOPT_RETURNTRANSFER, true);
+        //curl_setopt($get_curl_mj, CURLOPT_TIMEOUT, 10);
+        $get_respose=curl_exec($get_curl_mj);
+        $get_response_data=json_decode($get_respose);
+        curl_close($get_curl_mj);
+        print_r($get_response_data->progress);
+        
+        if($get_response_data->progress===100){
+            if(isset($get_response_data->response->imageUrls[0])){
+                $array[]=$get_response_data->response->imageUrls[0];
+                print_r($array[0]);
+            }else{
+                print_r('MidJourney falahou em obter a imagem');
+            }
+        }
+        if($get_response_data->progress==='incomplete'){
+            throw new Exception('Midjourney Image generation failed');
+        }
+        if ($retryCount > $maxRetry) {
+            throw new Exception('Max retries exceeded');
+        }
+
+    }else{
+        echo 'Erro no post'; 
+    }
+    sleepMilliseconds(1000);
+    return get_MJ_img($msg,$api,$post_id,$prompt,$retryCount+1,$array);
 }
 
 
@@ -794,6 +811,7 @@ function chatgpt_generate_and_publish_posts() {
 
                 if(isset($_POST['ia_midjournal'])){
                     $token=Credentials::getCredentials();
+                    
                     $mj_generated_image=generate_image_with_mj($token,$keyword,$post_id);
                     if($mj_generated_image===null || $mj_generated_image===''){
                         throw new Exception('Error: Generated Image is empty or null');
