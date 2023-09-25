@@ -413,8 +413,9 @@ function generate_image_with_mj($mj_api, $prompt,$post_id){
 
     $response_data=json_decode($response,true);
 
-    get_MJ_img($response_data['messageId'],$mj_api,$post_id,$prompt,0,$image_array);
-    print_r('hello '.$image_array);
+    $mj_image=get_MJ_img($response_data['messageId'],$mj_api,$post_id,$prompt,0,$image_array);
+    print_r($mj_image);
+    importar_imagem_destaque($mj_image,$post_id,$prompt);
 
 
 }
@@ -447,10 +448,12 @@ function search_image_with_google($prompt,$api_key,$search_id,$post_id){
 
 function upload_image($post_id){
     $file=$_FILES['image_upload'];
-    $tmp_name = $file['tmp_name'];
     $name=$file['name'];
-    $temp_path = WP_CONTENT_DIR . '/uploads/' . $name;
-    file_put_contents( $temp_path, $file );
+    $tmp_name = $file['tmp_name'];
+    $wp_main_dir = ABSPATH;
+    $temp_path = $wp_main_dir.'wp-content/uploads/'. $name;
+    print_r($temp_path);
+    move_uploaded_file($tmp_name,$temp_path);
     $filetype = wp_check_filetype( $temp_path, null );
     $attachment = array(
         'post_mime_type' => $filetype['type'],
@@ -475,6 +478,7 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
 
     // Faz a requisição segura para obter o conteúdo da imagem
     $response = wp_safe_remote_get( $imagem_url );
+    print_r($response);
 
     // Verifica se a requisição foi bem-sucedida
     if ( is_wp_error( $response ) ) {
@@ -522,7 +526,7 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
 
 
 function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
-    $maxRetry = 20;
+    $maxRetry = 40;
     if(isset($msg)){
         $curl_get_url='https://api.thenextleg.io/v2/message/'.$msg.'?expireMins=2';
         $get_curl_mj=curl_init();
@@ -542,7 +546,7 @@ function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
         if($get_response_data->progress===100){
             if(isset($get_response_data->response->imageUrls[0])){
                 $array[]=$get_response_data->response->imageUrls[0];
-                print_r($array[0]);
+                return $array[0];
             }else{
                 print_r('MidJourney falahou em obter a imagem');
             }
@@ -795,9 +799,7 @@ function chatgpt_generate_and_publish_posts() {
                 $post_id = wp_insert_post($post_data);
                 
                 if(isset($_POST['ia_send'])){
-                    echo 'foi';
                     upload_image($post_id);
-                    echo 'aqui';
                  }
                 
                 // geração de imagem com o DALL-E se selecionada a opção
@@ -848,6 +850,15 @@ function chatgpt_generate_and_publish_posts() {
 
 // Adicionar página de opções do plugin ao menu de configurações (FREE)
 function chatgpt_plugin_menu() {
+/*     add_menu_page(
+        __( 'Configurações do ChatGPT Autopost', 'textdomain'),
+        'ChatGPT Autopost',
+        'manage_options',
+        'chatgpt_plugin',
+        'chatgpt_plugin_options_page',
+        '',
+        6
+    ) ; */
     add_options_page('Configurações do ChatGPT Autopost', 'ChatGPT Autopost', 'manage_options', 'chatgpt_plugin', 'chatgpt_plugin_options_page');
 }
 
