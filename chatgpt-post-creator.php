@@ -272,14 +272,15 @@ function save_chatgpt_prompt() {
 
 
 // Função para gerar texto usando a API ChatGPT (FREE)
-function chatgpt_generate_text($api_key, $prompt) {
+function chatgpt_generate_text($api_key,$key) {
 
+    $prompt='Crie uma outline com ao menos 10 seções sobre'.$key.', considere uma estrutura de reviews';
     $selected_model = get_option('chatgpt_selected_model');
     if (!$selected_model) {
-        $selected_model = 'text-davinci-003';
+        $selected_model = 'gpt-3.5-turbo-16k';
     }
 
-    if (in_array($selected_model, ['gpt-3.5-turbo', 'gpt-4-32k', 'gpt-4'])) {
+    if (in_array($selected_model, ['gpt-3.5-turbo-16k', 'gpt-4-32k', 'gpt-4'])) {
         $url = 'https://api.openai.com/v1/chat/completions';
         $body = array(
             'model' => $selected_model,
@@ -293,12 +294,7 @@ function chatgpt_generate_text($api_key, $prompt) {
             'max_tokens' => 3950, // Reduzindo um pouco para ter uma margem de segurança
         );
     } else {
-        $url = 'https://api.openai.com/v1/engines/'.$selected_model.'/completions';
-        $body = array(
-            'prompt' => $prompt,
-            'temperature' => 0.7,
-            'max_tokens' => 3950, // Reduzindo um pouco para ter uma margem de segurança
-        );
+        print_r($selected_model);
     }
 
     $headers = array(
@@ -328,20 +324,70 @@ function chatgpt_generate_text($api_key, $prompt) {
         return 'Error: ' . $json_response['error']['message'];
     } else {
         $generated_text = '';
-        if (isset($json_response['choices'])) {
-            $generated_text = $json_response['choices'][0]['text'];
-        } else if (isset($json_response['messages'])) {
-            $messages = $json_response['messages'];
+         if (isset($json_response['choices'])) {
+            $messages = $json_response['choices'];
             foreach ($messages as $message) {
-                if ($message['role'] == 'assistant') {
-                    $generated_text = $message['content'];
+                if ($message['message']['role'] == 'assistant') {
+                    $generated_text = $message['message']['content'];
+                    $final_text=generate_big_text($generated_text,$selected_model,$api_key,6);
+                    print_r($final_text);
                 }
+
             }
         } else {
             return 'Error: Unexpected response format.';
         }
-        return $generated_text;
+        return $final_text;
     }
+}
+
+function generate_big_text($text,$model,$api_key,$rounds){
+    $big_text='';
+    for($i=0;$i<=$rounds;$i++){
+        $final_prompt='Tendo em vista esta estrutura:'.$text.' Gere a seção ['.$rounds.'] com tom explicativo, formal, com ao menos 250 palavras';
+        $final_body = array(
+            'model' => $model,
+            'messages' => array(
+                array(
+                    'role' => 'user',
+                    'content' => $final_prompt
+                )
+            ),
+            'temperature' => 0.7,
+            'max_tokens' => 3950, // Reduzindo um pouco para ter uma margem de segurança
+        );
+        $second_headers = array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $api_key
+        );
+        $url_second = 'https://api.openai.com/v1/chat/completions';
+        $curl_final_text = curl_init();
+        curl_setopt($curl_final_text, CURLOPT_URL, $url_second);
+        curl_setopt($curl_final_text, CURLOPT_POST, 1);
+        curl_setopt($curl_final_text, CURLOPT_POSTFIELDS, json_encode($final_body));
+        curl_setopt($curl_final_text, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl_final_text, CURLOPT_HTTPHEADER, $second_headers);
+
+        $response_new = curl_exec($curl_final_text);
+        //print_r($response_new);
+
+        if ($response_new === false) {
+            $error_msg = curl_error($curl_final_text);
+            curl_close($curl_final_text);
+            return 'Error: ' . $error_msg;
+        }
+        curl_close($curl_final_text);
+        $json_final_response = json_decode($response_new, true);
+        if (isset($json_final_response['error'])) {
+            return 'Error: ' . $json_final_response['error']['message'];
+        }else{
+            $real_generated_text=$json_final_response['choices'][0]['message']['content'];
+            $big_text.=$real_generated_text;
+            
+        }
+    }
+    return $big_text;
+
 }
 
 function generate_image_with_dall_e($api,$prompt,$post_id){
@@ -596,7 +642,7 @@ function chatgpt_plugin_options_page() {
    
    // Lista de modelos de ChatGPT disponíveis
     $models = array(
-        'text-davinci-003' => 'GPT-3.5',
+        'gpt-3.5-turbo-16k' => 'GPT-3.5',
         'gpt-4' => 'GPT-4',
     );
 
@@ -763,7 +809,7 @@ function chatgpt_generate_and_publish_posts() {
             try {
                 $keyword = trim($keyword);
                 $complete_prompt = str_replace('{palavra-chave}', $keyword, $prompt);
-                $generated_text = chatgpt_generate_text($api_key, $complete_prompt);
+                $generated_text = chatgpt_generate_text($api_key, $keyword);
                 
                 
 
