@@ -343,8 +343,7 @@ function chatgpt_generate_text($api_key,$key) {
 
 function generate_big_text($text,$model,$api_key,$rounds){
     $big_text='';
-    for($i=0;$i<=$rounds;$i++){
-        $final_prompt='Tendo em vista esta estrutura:'.$text.' Gere a seção ['.$rounds.'] com tom explicativo, formal, com ao menos 250 palavras';
+    $final_prompt='Tendo em vista esta estrutura:'.$text.' Gere a seção [1] com tom explicativo, formal, com ao menos 250 palavras';
         $final_body = array(
             'model' => $model,
             'messages' => array(
@@ -385,7 +384,6 @@ function generate_big_text($text,$model,$api_key,$rounds){
             $big_text.=$real_generated_text;
             
         }
-    }
     return $big_text;
 
 }
@@ -524,7 +522,7 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
 
     // Faz a requisição segura para obter o conteúdo da imagem
     $response = wp_safe_remote_get( $imagem_url );
-    print_r($response);
+    //print_r($response);
 
     // Verifica se a requisição foi bem-sucedida
     if ( is_wp_error( $response ) ) {
@@ -538,7 +536,9 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
         $filename = $image_name.'.jpg';
 
         // Caminho completo para onde a imagem será salva temporariamente
-        $temp_path = WP_CONTENT_DIR . '/uploads/' . $filename;
+        $wp_main_dir = ABSPATH;
+        $temp_path = $wp_main_dir.'wp-content/uploads/'. $filename;
+        
 
         // Salva o conteúdo da imagem em um arquivo temporário
         file_put_contents( $temp_path, $body );
