@@ -129,7 +129,7 @@ function chatgpt_plugin_options_page() {
             </form>
             </div>
         </div>
-        <?php require_once(dirname(__FILE__).'../templates/category_modal.php');?>
+        <?php require_once(plugin_dir_path(__FILE__).'../templates/category_modal.php');?>
         <?php
     
 }
