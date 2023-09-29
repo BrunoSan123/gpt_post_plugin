@@ -1,7 +1,7 @@
 //Javascript que oculta e mostra o calendário para agendamento de postagem
 
 
-if(document.body.classList.contains("settings_page_chatgpt_plugin")){
+if(document.body.classList.contains("toplevel_page_chatgpt_plugin")){
     document.addEventListener('DOMContentLoaded', function() {
         var postStatusRadios = document.getElementsByName('post_status');
         var scheduleDatetimeContainer = document.getElementById('schedule_datetime_container');

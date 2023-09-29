@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Response;
 if ( ! defined( 'ABSPATH' ) ) {
         exit;
     }
-
+    set_time_limit(0);
     //import de funções
     require_once(dirname(__FILE__).'/functions/actions_functions.php');
     require_once(dirname(__FILE__).'/functions/handle_functions.php');

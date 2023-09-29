@@ -1,4 +1,4 @@
-const page_auto_post =document.body.classList.contains("settings_page_chatgpt_plugin")
+const page_auto_post =document.body.classList.contains("toplevel_page_chatgpt_plugin")
 
 if(page_auto_post){
 const palletSelect=document.querySelectorAll('.input_gpt')
