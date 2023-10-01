@@ -72,7 +72,9 @@ function generate_image_with_mj($mj_api, $prompt,$post_id){
 
     $mj_image=get_MJ_img($response_data['messageId'],$mj_api,$post_id,$prompt,0,$image_array);
     print_r($mj_image);
-    importar_imagem_destaque($mj_image,$post_id,$prompt);
+    retrieve_safe_img($mj_api,$mj_image,$prompt,$post_id);
+    //print_r($img_retrivied);
+    //importar_imagem_destaque($img_retrivied,$post_id,$prompt);
 
 
 }
@@ -223,4 +225,57 @@ function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
     }
     sleepMilliseconds(1000);
     return get_MJ_img($msg,$api,$post_id,$prompt,$retryCount+1,$array);
+}
+
+function retrieve_safe_img($api,$image,$image_name,$post_id){
+    if(isset($image)){
+        $curl_get_image='https://api.thenextleg.io/getImage';
+
+        $curl_post_image= curl_init();
+        $request_data=array(
+            'imgUrl'=>$image,
+        );
+        $headers=array(
+            'Content-type:application/json',
+            'Authorization:Bearer '.$api,
+        );
+
+        curl_setopt($curl_post_image, CURLOPT_URL,$curl_get_image);
+        curl_setopt($curl_post_image, CURLOPT_POST, 1);
+        curl_setopt($curl_post_image, CURLOPT_POSTFIELDS, json_encode($request_data));
+        curl_setopt($curl_post_image, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl_post_image, CURLOPT_HTTPHEADER, $headers);
+
+        $image_response=curl_exec($curl_post_image);
+
+        $filename = $image_name.'.jpg';
+
+        // Caminho completo para onde a imagem será salva temporariamente
+        $wp_main_dir = ABSPATH;
+        $temp_path = $wp_main_dir.'wp-content/uploads/'. $filename;
+        
+
+        // Salva o conteúdo da imagem em um arquivo temporário
+        file_put_contents( $temp_path, $image_response );
+
+        // Configuração do tipo de mídia a ser inserido na biblioteca
+        $filetype = wp_check_filetype( $temp_path, null );
+
+        // Array de dados do arquivo a ser inserido na biblioteca
+        $attachment = array(
+            'post_mime_type' => $filetype['type'],
+            'post_title'     => sanitize_file_name( $filename ),
+            'post_content'   => '',
+            'post_status'    => 'inherit',
+        );
+
+        $attachment_id = wp_insert_attachment( $attachment, $temp_path );
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        $attach_data = wp_generate_attachment_metadata( $attachment_id, $temp_path );
+        wp_update_attachment_metadata( $attachment_id, $attach_data );
+
+        // Define a imagem como imagem de destaque do post
+        set_post_thumbnail( $post_id, $attachment_id );
+
+    }
 }
