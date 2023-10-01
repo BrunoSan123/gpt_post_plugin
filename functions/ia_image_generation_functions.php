@@ -133,9 +133,10 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
     }
 
     // Faz a requisição segura para obter o conteúdo da imagem
-    $args=array('timeout'=>60);
+    $args=array('timeout'=>80);
     $response = wp_remote_get( $imagem_url,$args );
-    print_r($response);
+    //print_r($response);
+    var_dump($response);
 
     // Verifica se a requisição foi bem-sucedida
     if ( is_wp_error( $response ) ) {
@@ -144,6 +145,7 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
     } else {
         // Obtém o conteúdo da resposta
         $body = wp_remote_retrieve_body( $response );
+
 
         // Gere um nome de arquivo para a imagem (você pode personalizá-lo conforme necessário)
         $filename = $image_name.'.jpg';

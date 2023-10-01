@@ -208,7 +208,7 @@ function chatgpt_generate_and_publish_posts() {
                 }
 
                 if(isset($_POST['ia_midjournal'])){
-                    $token=Credentials::getCredentials();
+                    $token='';
                     
                     $mj_generated_image=generate_image_with_mj($token,$keyword,$post_id);
                     if($mj_generated_image===null || $mj_generated_image===''){

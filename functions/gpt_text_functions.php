@@ -26,11 +26,11 @@ function chatgpt_recreate_text_ajax() {
 
     // Recupere o prompt salvo e substitua {palavra-chave} pelo título do post
     $saved_prompt = get_option('chatgpt_saved_prompt', 'Escreva um artigo sobre {palavra-chave}');
-    $complete_prompt = str_replace('{palavra-chave}', $post->post_title, $saved_prompt);
+    //$complete_prompt = str_replace('{palavra-chave}', $post->post_title, $saved_prompt);
 
     // Recrie o texto usando a função que gera o texto com ChatGPT
     $api_key = get_option('chatgpt_api_key');
-    $new_text = chatgpt_generate_text($api_key, $complete_prompt);
+    $new_text = chatgpt_generate_text($api_key, $post->post_title);
 
     // Atualize o post com o novo texto gerado
     $updated_post = array(
@@ -41,6 +41,40 @@ function chatgpt_recreate_text_ajax() {
     wp_update_post($updated_post);
 
     wp_send_json_success();
+}
+
+function dalle_recreate_image_ajax(){
+    if (!chatgpt_freemius_integration()->can_use_premium_code()) {
+        wp_send_json_error(array('message' => 'Acesso negado. Esta funcionalidade é apenas para usuários premium.'));
+        return;
+    }
+
+    check_ajax_referer('chatgpt-ajax-nonce', 'security');
+
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error(array('message' => 'Você não tem permissão para editar posts.'));
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+
+    if ($post_id <= 0) {
+        wp_send_json_error(array('message' => 'ID de post inválido.'));
+    }
+
+    $post = get_post($post_id);
+
+    if (!$post) {
+        wp_send_json_error(array('message' => 'Post não encontrado.'));
+    }
+
+    $api_key = get_option('chatgpt_api_key');
+
+    generate_image_with_dall_e($api_key,$post->title,$post_id);
+
+    wp_send_json_success();
+
+
+
 }
 
 
@@ -102,7 +136,7 @@ function chatgpt_generate_text($api_key,$key) {
                 if ($message['message']['role'] == 'assistant') {
                     $generated_text = $message['message']['content'];
                     $final_text=generate_big_text($generated_text,$selected_model,$api_key,6);
-                    print_r($final_text);
+                    //print_r($final_text);
                 }
 
             }

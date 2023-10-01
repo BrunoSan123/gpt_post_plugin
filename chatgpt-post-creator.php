@@ -121,8 +121,10 @@ add_action('admin_enqueue_scripts', 'chatgpt_plugin_enqueue_scripts');
 function chatgpt_add_bulk_action($bulk_actions) {
     if (chatgpt_freemius_integration()->can_use_premium_code()) {
         $bulk_actions['chatgpt_recreate_texts'] = 'Recriar Textos';
+        $bulk_actions['recreate_image_with_dalle']='Recriar imagem e destaque com DALLE';
     } else {
         $bulk_actions['chatgpt_recreate_texts_disabled'] = 'Recriar Textos (Versão Premium)';
+        $bulk_actions['recreate_image_with_dalle_disaled']='Recriar imagem e destaque com DALLE';
     }
     
     return $bulk_actions;
@@ -171,6 +173,7 @@ add_action('admin_enqueue_scripts', 'chatgpt_enqueue_admin_scripts');
 // quarta retirada
 
 add_action('wp_ajax_chatgpt_recreate_text_ajax', 'chatgpt_recreate_text_ajax');
+add_action('wp_ajax_recreate_dalle_image','dalle_recreate_image_ajax');
 
 
 //Salvando o valor do PROMPT para mostra sempre que a pagina for recarregada

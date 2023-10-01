@@ -1,15 +1,17 @@
 <?php
 
 function chatgpt_handle_bulk_action($redirect_to, $action, $post_ids) {
+    $api_key = get_option('chatgpt_api_key');
     if ($action === 'chatgpt_recreate_texts') {
         if ( chatgpt_freemius_integration()->can_use_premium_code() ) {
-            $api_key = get_option('chatgpt_api_key');
+            
             $saved_prompt = get_option('chatgpt_saved_prompt', 'Escreva um artigo sobre {palavra-chave}');
 
             foreach ($post_ids as $post_id) {
                 $post = get_post($post_id);
-                $complete_prompt = str_replace('{palavra-chave}', $post->post_title, $saved_prompt);
-                $new_text = chatgpt_generate_text($api_key, $complete_prompt);
+                //$complete_prompt = str_replace('{palavra-chave}', $post->post_title, $saved_prompt);
+                $new_text = chatgpt_generate_text($api_key, $post->post_title);
+
 
                 $updated_post = array(
                     'ID' => $post_id,
@@ -25,14 +27,25 @@ function chatgpt_handle_bulk_action($redirect_to, $action, $post_ids) {
         }
     }
 
+    if($action==='recreate_image_with_dalle'){
+        if(chatgpt_freemius_integration()->can_use_premium_code()){
+            foreach($post_ids as $post_id){
+                $post =get_post($post_id);
+                generate_image_with_dall_e($api_key,$post->post_title,$post_id);
+            }
+        }
+    }
+
     return $redirect_to;
 }
 
 function chatgpt_add_recreate_text_link($actions, $post) {
     if ( chatgpt_freemius_integration()->can_use_premium_code() ) {
         $actions['recreate_text'] = '<a href="#" data-post-id="' . esc_attr($post->ID) . '" class="chatgpt-recreate-text" onclick="recreate_text(this)">Recriar texto</a><span class="chatgpt-loading" style="display:none;"><img src="https://gptautopost.com/wp-content/plugins/chatgpt-post-creator/load.gif" alt="Carregando..." /></span>';
+        $actions['recreate_dalle'] = '<a href="#" data-post-image-id="' . esc_attr($post->ID) . '" class="chatgpt-recreate-dalle" onclick="recreate_image(this)">Recriar imagem com DALLE</a><span class="chatgpt-loading" style="display:none;"><img src="https://gptautopost.com/wp-content/plugins/chatgpt-post-creator/load.gif" alt="Carregando..." /></span>';
     } else {
         $actions['recreate_text'] = '<span>Recriar texto (Versão Premium)</span>';
+        $actions['recreate_dalle'] = '<span>Recriar Imagem com DALLE (Versão Premium)</span>';
     }
     return $actions;
 }

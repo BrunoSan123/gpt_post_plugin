@@ -5,7 +5,7 @@ function recreate_text(link) {
     // Mostrar imagem de carregamento
     loadingImage.style.display = 'inline';
 
-    // Requisi«®«ªo AJAX
+    // Requisiï¿½ï¿½ï¿½ï¿½ï¿½ï¿½o AJAX
     jQuery.post(chatgpt_ajax_object.ajax_url, {
         action: 'chatgpt_recreate_text_ajax',
         security: chatgpt_ajax_object.ajax_nonce,
@@ -20,6 +20,29 @@ function recreate_text(link) {
         // Ocultar imagem de carregamento
         loadingImage.style.display = 'none';
     });
+}
+
+function recreate_image(link){
+    var post =link.getAttribute('data-post-image-id');
+    var loadingImage = link.nextElementSibling;
+
+    loadingImage.style.display = 'inline';
+
+    jQuery.post(chatgpt_ajax_object.ajax_url,{
+        action:'dalle_recreate_image_ajax',
+        security:chatgpt_ajax_object.ajax_nonce,
+        post_id:post
+    },function(response){
+        if (response.success) {
+            alert('imagem recriado com sucesso.');
+        } else {
+            alert(response.data.message);
+        }
+
+        loadingImage.style.display = 'none';
+    });
+
+
 }
 
 
