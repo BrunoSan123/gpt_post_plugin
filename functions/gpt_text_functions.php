@@ -69,12 +69,42 @@ function dalle_recreate_image_ajax(){
 
     $api_key = get_option('chatgpt_api_key');
 
-    generate_image_with_dall_e($api_key,$post->title,$post_id);
+    generate_image_with_dall_e($api_key,$post->post_title,$post_id);
 
     wp_send_json_success();
 
 
 
+}
+
+function mj_recreate_image_ajax(){
+    if (!chatgpt_freemius_integration()->can_use_premium_code()) {
+        wp_send_json_error(array('message' => 'Acesso negado. Esta funcionalidade é apenas para usuários premium.'));
+        return;
+    }
+
+    check_ajax_referer('chatgpt-ajax-nonce', 'security');
+
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error(array('message' => 'Você não tem permissão para editar posts.'));
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+
+    if ($post_id <= 0) {
+        wp_send_json_error(array('message' => 'ID de post inválido.'));
+    }
+
+    $post = get_post($post_id);
+
+    if (!$post) {
+        wp_send_json_error(array('message' => 'Post não encontrado.'));
+    }
+
+    $token='';
+    generate_image_with_mj($token,$post->post_title,$post_id);
+
+    wp_send_json_success();
 }
 
 

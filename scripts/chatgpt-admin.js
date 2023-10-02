@@ -29,7 +29,7 @@ function recreate_image(link){
     loadingImage.style.display = 'inline';
 
     jQuery.post(chatgpt_ajax_object.ajax_url,{
-        action:'dalle_recreate_image_ajax',
+        action:'recreate_dalle_image_ajax',
         security:chatgpt_ajax_object.ajax_nonce,
         post_id:post
     },function(response){
@@ -41,6 +41,30 @@ function recreate_image(link){
 
         loadingImage.style.display = 'none';
     });
+
+
+}
+
+function recreate_image_mj(link){
+    var post =link.getAttribute('data-post-mj-id');
+    var loadingImage = link.nextElementSibling;
+
+    loadingImage.style.display = 'inline';
+
+    jQuery.post(chatgpt_ajax_object.ajax_url,{
+        action:'recreate_mj_image_ajax',
+        security:chatgpt_ajax_object.ajax_nonce,
+        post_id:post
+    },function(response){
+        if (response.success) {
+            alert('imagem recriado com sucesso.');
+        } else {
+            alert(response.data.message);
+        }
+
+        loadingImage.style.display = 'none';
+    });
+
 
 
 }

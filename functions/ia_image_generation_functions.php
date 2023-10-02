@@ -32,13 +32,14 @@ function generate_image_with_dall_e($api,$prompt,$post_id){
         //print_r($response_data);
         
         if (isset($response_data['data'])) {
-            echo '<img src="'.$response_data['data'][0]['url'].'"/>';
+            //echo '<img src="'.$response_data['data'][0]['url'].'"/>';
     /*         $matches=array();
             preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $body, $matches);
             print_r($body); */
             importar_imagem_destaque($response_data['data'][0]['url'],$post_id,$prompt);
         } else {
             // Lidar com a falta da URL da imagem ou outros erros da API
+            print_r($response_data);
             return print_r('Não foi por algum motivo');
         }
 }
@@ -69,9 +70,11 @@ function generate_image_with_mj($mj_api, $prompt,$post_id){
     curl_close($curl);
 
     $response_data=json_decode($response,true);
-
+    //print_r($response_data);
+    //print_r($mj_api);
+    //echo 'foi';
     $mj_image=get_MJ_img($response_data['messageId'],$mj_api,$post_id,$prompt,0,$image_array);
-    print_r($mj_image);
+    //print_r($mj_image);
     retrieve_safe_img($mj_api,$mj_image,$prompt,$post_id);
     //print_r($img_retrivied);
     //importar_imagem_destaque($img_retrivied,$post_id,$prompt);
@@ -138,7 +141,7 @@ function importar_imagem_destaque($imagem_url, $post_id,$image_name) {
     $args=array('timeout'=>80);
     $response = wp_remote_get( $imagem_url,$args );
     //print_r($response);
-    var_dump($response);
+    //var_dump($response);
 
     // Verifica se a requisição foi bem-sucedida
     if ( is_wp_error( $response ) ) {
@@ -203,7 +206,7 @@ function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
         $get_respose=curl_exec($get_curl_mj);
         $get_response_data=json_decode($get_respose);
         curl_close($get_curl_mj);
-        print_r($get_response_data->progress);
+        //print_r($get_response_data->progress);
         
         if($get_response_data->progress===100){
             if(isset($get_response_data->response->imageUrls[0])){
@@ -221,7 +224,7 @@ function get_MJ_img($msg,$api,$post_id,$prompt, $retryCount,$array){
         }
 
     }else{
-        echo 'Erro no post'; 
+        echo ' Erro no post '; 
     }
     sleepMilliseconds(1000);
     return get_MJ_img($msg,$api,$post_id,$prompt,$retryCount+1,$array);
